@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* optional: reset tambahan */
+html, body {
+  background-color: #000;
+}
