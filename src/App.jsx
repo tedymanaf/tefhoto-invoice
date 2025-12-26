@@ -6,7 +6,7 @@ const PACKAGES = [
   // --- AQIQAH / LAMARAN / PENGAJIAN ---
   {
     id: 'pure',
-    category: 'Acara (Aqiqah/Lamaran)',
+    category: 'Lamaran/Aqiqah/7 Bulanan/etc',
     name: 'PAKET PURE',
     price: 1700000,
     features: [
@@ -21,7 +21,7 @@ const PACKAGES = [
   },
   {
     id: 'fairy',
-    category: 'Acara (Aqiqah/Lamaran)',
+    category: 'Lamaran/Aqiqah/7 Bulanan/etc',
     name: 'PAKET FAIRY',
     price: 3700000,
     features: [
@@ -405,6 +405,39 @@ const App = () => {
 
   const categories = [...new Set(PACKAGES.map(p => p.category))];
   const [activeCategory, setActiveCategory] = useState('All');
+
+  // --- SECURITY / PROTECTION FEATURE ---
+  useEffect(() => {
+    // 1. Prevent Right Click
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      // Bisa tambahkan: alert("Right click is disabled");
+    };
+
+    // 2. Prevent Keyboard Shortcuts for DevTools
+    const handleKeyDown = (e) => {
+      // F12
+      if (e.key === 'F12') {
+        e.preventDefault();
+      }
+      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (DevTools/Console)
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+      }
+      // Ctrl+U (View Source)
+      if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('tefhoto_invoices');
@@ -829,7 +862,7 @@ const App = () => {
     }
 
     return (
-      <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500 selection:text-black pb-20 relative overflow-hidden">
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500 selection:text-black pb-20 relative overflow-hidden select-none">
         {/* Background Ambient Light */}
         <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-zinc-800/20 via-black to-black -z-10"></div>
         <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-amber-600/10 rounded-full blur-[128px] -z-10"></div>
@@ -890,7 +923,7 @@ const App = () => {
 
   if (view === 'history') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans relative">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative select-none">
          <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black -z-10"></div>
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
         <div className="pt-28 pb-12 px-6 max-w-6xl mx-auto">
@@ -951,7 +984,7 @@ const App = () => {
 
   if (view === 'portfolio') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans relative overflow-hidden">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative overflow-hidden select-none">
         {/* Decorative Background */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-600/5 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
@@ -1002,7 +1035,7 @@ const App = () => {
 
   if (view === 'contact') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans relative">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative select-none">
          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-zinc-900 to-transparent -z-10 opacity-50"></div>
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
         <div className="pt-24 pb-12 px-6 max-w-3xl mx-auto flex flex-col justify-center min-h-[80vh]">
@@ -1049,7 +1082,7 @@ const App = () => {
     const currentSelectValue = isCustomEvent ? 'Lainnya' : clientData.eventType;
 
     return (
-      <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-12 font-sans pt-24 md:pt-16">
+      <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-12 font-sans pt-24 md:pt-16 select-none">
         <div className="max-w-4xl mx-auto">
           <button onClick={() => setView('home')} className="flex items-center text-zinc-400 hover:text-white mb-8 transition-colors px-4 py-2 hover:bg-white/5 rounded-lg w-fit">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
@@ -1223,7 +1256,7 @@ const App = () => {
 
   if (view === 'preview') {
     return (
-      <div className="min-h-screen bg-zinc-950 p-0 md:p-8 overflow-x-hidden print:bg-white print:p-0 flex flex-col items-center">
+      <div className="min-h-screen bg-zinc-950 p-0 md:p-8 overflow-x-hidden print:bg-white print:p-0 flex flex-col items-center select-none">
         <style>{`
           @media print {
             body * { visibility: hidden; }
