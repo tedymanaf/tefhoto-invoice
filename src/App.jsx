@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle } from 'lucide-react';
+import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle, PartyPopper, Maximize2, Minimize2, ChevronDown, Pencil, ZoomIn, ZoomOut } from 'lucide-react';
 
 // --- DATA PAKET DARI FILE TEXT ---
 const PACKAGES = [
@@ -152,6 +152,17 @@ const PACKAGES = [
   }
 ];
 
+// --- EVENT OPTIONS ---
+const EVENT_OPTIONS = [
+  'Lamaran',
+  'Prawedding',
+  'Wedding',
+  '7 Bulanan',
+  'Ngunduh Mantu',
+  'Aqiqah & Tasyakuran',
+  'Lainnya'
+];
+
 // --- UTILS ---
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('id-ID', {
@@ -173,15 +184,84 @@ const parseNumberInput = (value) => {
   return parseInt(value.replace(/\./g, '')) || 0;
 };
 
-const generateInvoiceNumber = () => {
+// NEW INVOICE FORMAT: INV-TEF-YYMM-SEQ-RAND
+const generateInvoiceNumber = (history = []) => {
   const date = new Date();
-  const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `INV/${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}/${randomStr}`;
+  const year = date.getFullYear().toString().slice(-2); // 2 Digit Year (e.g., 25)
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // 2 Digit Month (e.g., 12)
+  const yymm = `${year}${month}`;
+  
+  let maxSeq = 0;
+  const prefix = `INV-TEF-${yymm}-`;
+  
+  history.forEach(inv => {
+    const invNo = inv.clientData?.invoiceNo || '';
+    if (invNo.startsWith(prefix)) {
+      const parts = invNo.split('-');
+      if (parts.length >= 4) {
+        const seq = parseInt(parts[3], 10);
+        if (!isNaN(seq) && seq > maxSeq) {
+          maxSeq = seq;
+        }
+      }
+    }
+  });
+
+  const nextSeq = String(maxSeq + 1).padStart(3, '0'); // e.g., 001, 002
+  const randomStr = Math.random().toString(36).substring(2, 5).toUpperCase(); // 3 Random Chars
+  
+  return `INV-TEF-${yymm}-${nextSeq}-${randomStr}`;
 };
 
 const formatDateIndo = (dateString) => {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
+// --- SMART DATE FORMATTER FOR PDF ---
+const formatEventDateRange = (startDateStr, endDateStr) => {
+  if (!startDateStr) return '-';
+  
+  const optionsShort = { month: 'short' };
+  const optionsFull = { year: 'numeric', month: 'short', day: 'numeric' };
+
+  // FIX: JIKA TANGGAL SAMA PERSIS (String YYYY-MM-DD sama)
+  if (endDateStr && startDateStr === endDateStr) {
+      const date = new Date(startDateStr);
+      return date.toLocaleDateString('id-ID', optionsFull);
+  }
+
+  const start = new Date(startDateStr);
+  const end = endDateStr ? new Date(endDateStr) : null;
+
+  if (!end) {
+    return start.toLocaleDateString('id-ID', optionsFull);
+  }
+
+  const startYear = start.getFullYear();
+  const endYear = end.getFullYear();
+  const startMonth = start.getMonth();
+  const endMonth = end.getMonth();
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+
+  // Jika tahun sama
+  if (startYear === endYear) {
+    // Jika bulan sama
+    if (startMonth === endMonth) {
+      // Jika tanggal berurutan (misal 27 & 28)
+      if (endDay - startDay === 1) {
+        return `${startDay}-${endDay} ${start.toLocaleDateString('id-ID', optionsShort)} ${startYear}`;
+      } else {
+        // Jika tidak berurutan (misal 04 & 17)
+        return `${startDay} ${start.toLocaleDateString('id-ID', optionsShort)} & ${endDay} ${end.toLocaleDateString('id-ID', optionsShort)} ${startYear}`;
+      }
+    }
+  }
+
+  // Fallback: Beda bulan atau beda tahun (Standard Range)
+  // Contoh: 27 Des 2025 - 02 Jan 2026
+  return `${start.toLocaleDateString('id-ID', optionsFull)} - ${end.toLocaleDateString('id-ID', optionsFull)}`;
 };
 
 // --- COMPONENT: NAVBAR ---
@@ -219,9 +299,25 @@ const Navbar = ({ currentView, onNavigate, isMobileMenuOpen, onToggleMobileMenu 
   </header>
 );
 
-// --- COMPONENT: PACKAGE CARD ---
-const PackageCard = ({ pkg, onSelect }) => (
-  <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-amber-500/50 transition-all duration-300 group flex flex-col h-full active:scale-[0.98] transform">
+// --- COMPONENT: PACKAGE CARD (UPDATED) ---
+const PackageCard = ({ pkg, onSelect, onToggleFocus, isFocused }) => (
+  <div 
+    onClick={() => onToggleFocus(pkg.id)}
+    className={`bg-zinc-900 border rounded-xl overflow-hidden transition-all duration-300 group flex flex-col h-full active:scale-[0.98] relative ${
+      isFocused 
+        ? 'border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.2)] scale-[1.02] z-10 cursor-zoom-out' 
+        : 'border-zinc-800 hover:border-amber-500/50 cursor-zoom-in'
+    }`}
+  >
+    {/* Visual indicator for focus toggle */}
+    <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+       {isFocused ? (
+         <div className="bg-black/50 p-1 rounded-full backdrop-blur"><Minimize2 className="w-4 h-4 text-zinc-400" /></div>
+       ) : (
+         <div className="bg-black/50 p-1 rounded-full backdrop-blur"><Maximize2 className="w-4 h-4 text-zinc-400" /></div>
+       )}
+    </div>
+
     <div className="p-6 flex-grow">
       <div className="flex justify-between items-start mb-4">
         <div>
@@ -241,8 +337,11 @@ const PackageCard = ({ pkg, onSelect }) => (
     <div className="bg-zinc-950 p-4 border-t border-zinc-800 flex items-center justify-between">
       <span className="text-lg font-bold text-white">{formatCurrency(pkg.price)}</span>
       <button 
-        onClick={() => onSelect(pkg)}
-        className="bg-white text-black hover:bg-amber-400 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-md"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevents card focus toggle when clicking Select
+          onSelect(pkg);
+        }}
+        className="bg-white text-black hover:bg-amber-400 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-md z-20 relative cursor-pointer"
       >
         Pilih
       </button>
@@ -260,7 +359,11 @@ const App = () => {
   // UI STATES
   const [toastMessage, setToastMessage] = useState(null);
   const [showWaModal, setShowWaModal] = useState(false);
-  const [isHistoryMode, setIsHistoryMode] = useState(false); // NEW: Track if we are viewing from history
+  const [isHistoryMode, setIsHistoryMode] = useState(false);
+  
+  // FOCUS MODE & EDIT MODE STATE
+  const [focusedPackageId, setFocusedPackageId] = useState(null);
+  const [editingInvoiceId, setEditingInvoiceId] = useState(null); // NEW: Track ID being edited
   
   const [clientData, setClientData] = useState({
     name: '',
@@ -269,6 +372,7 @@ const App = () => {
     eventDateEnd: '',   
     address: '',
     notes: '',
+    eventType: '',
     invoiceNo: ''
   });
   
@@ -303,13 +407,32 @@ const App = () => {
 
   const handleSelectPackage = (pkg) => {
     setSelectedPackage(pkg);
-    setClientData(prev => ({ ...prev, invoiceNo: generateInvoiceNumber() }));
+    setEditingInvoiceId(null); // RESET EDIT ID: New Package Selection means NEW Invoice
+    setClientData(prev => ({ 
+      ...prev, 
+      invoiceNo: generateInvoiceNumber(invoiceHistory),
+      eventType: '', 
+      eventDateEnd: '', 
+    }));
     setDpAmount('');
     setDpProofImage(null);
     setAdditionalItems([]);
-    setIsHistoryMode(false); // Reset mode: We are creating a NEW invoice
+    setIsHistoryMode(false); 
     setView('form');
+    setFocusedPackageId(null);
     window.scrollTo(0,0);
+  };
+
+  const handleToggleFocus = (pkgId) => {
+    if (focusedPackageId === pkgId) {
+       // Unfocus
+       setFocusedPackageId(null);
+    } else {
+       // Focus
+       setFocusedPackageId(pkgId);
+       // Scroll to top smoothly to ensure the focused card is visible
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleAddItem = () => {
@@ -379,24 +502,56 @@ const App = () => {
   };
 
   // --- HISTORY FUNCTIONS ---
-  const saveToHistory = () => {
-    const newInvoice = {
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      clientData: { ...clientData },
-      selectedPackage: { ...selectedPackage },
-      additionalItems: [...additionalItems],
-      dpAmount: dpAmount,
-      totalAmount: calculateTotal(),
-      balance: calculateBalance()
-    };
+  
+  // NEW: HANDLE EDIT FROM HISTORY
+  const handleEditFromHistory = (invoice) => {
+    setClientData({ ...invoice.clientData });
+    setSelectedPackage({ ...invoice.selectedPackage });
+    setAdditionalItems([...(invoice.additionalItems || [])]);
+    setDpAmount(invoice.dpAmount || '');
+    setDpProofImage(null); // Image data usually not persisted fully or to save space
+    setEditingInvoiceId(invoice.id); // SET EDITING ID
+    setIsHistoryMode(false); // Active editing mode, not just viewing
+    setView('form'); // Go to form
+    window.scrollTo(0,0);
+  };
 
-    const updatedHistory = [newInvoice, ...invoiceHistory];
-    setInvoiceHistory(updatedHistory);
-    localStorage.setItem('tefhoto_invoices', JSON.stringify(updatedHistory));
-    
-    // Use Toast instead of alert
-    showToast("Berhasil disimpan ke History!");
+  const saveToHistory = () => {
+    // UPDATED SAVE LOGIC
+    if (editingInvoiceId) {
+       // UPDATE EXISTING
+       const updatedHistory = invoiceHistory.map(inv => 
+         inv.id === editingInvoiceId ? {
+             ...inv,
+             clientData: { ...clientData },
+             selectedPackage: { ...selectedPackage },
+             additionalItems: [...additionalItems],
+             dpAmount: dpAmount,
+             totalAmount: calculateTotal(),
+             balance: calculateBalance(),
+             updatedAt: new Date().toISOString()
+         } : inv
+       );
+       setInvoiceHistory(updatedHistory);
+       localStorage.setItem('tefhoto_invoices', JSON.stringify(updatedHistory));
+       showToast("Invoice berhasil diperbarui!");
+    } else {
+       // CREATE NEW
+       const newInvoice = {
+         id: Date.now(),
+         createdAt: new Date().toISOString(),
+         clientData: { ...clientData },
+         selectedPackage: { ...selectedPackage },
+         additionalItems: [...additionalItems],
+         dpAmount: dpAmount,
+         totalAmount: calculateTotal(),
+         balance: calculateBalance()
+       };
+       const updatedHistory = [newInvoice, ...invoiceHistory];
+       setInvoiceHistory(updatedHistory);
+       localStorage.setItem('tefhoto_invoices', JSON.stringify(updatedHistory));
+       showToast("Berhasil disimpan ke History!");
+    }
   };
 
   const deleteFromHistory = (id) => {
@@ -429,12 +584,32 @@ const App = () => {
     window.scrollTo(0,0);
   };
 
-  // --- PRINT FUNCTION ---
-  // Ensuring direct call and no overlay issues
+  // --- PRINT FUNCTION WITH FILENAME CUSTOMIZATION ---
   const handlePrint = () => {
-    // Small delay to ensure any open modals are closed visually if needed, but primarily direct call
+    // 1. Simpan judul asli dokumen
+    const originalTitle = document.title;
+    
+    // 2. Buat format tanggal hari ini (DD-MM-YYYY)
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('id-ID', {
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric'
+    }).replace(/\//g, '-'); // Ubah "/" menjadi "-" agar valid di nama file
+
+    // 3. Ambil data klien
+    const clientName = clientData.name ? clientData.name.replace(/[^a-zA-Z0-9 ]/g, '') : 'CLIENT';
+    const invoiceNo = clientData.invoiceNo || 'INVOICE';
+
+    // 4. Set Judul Dokumen (Ini yang akan jadi nama file default saat Save as PDF)
+    // Format: INV-TEF-2512-001 - BUDI - 26-12-2025
+    document.title = `${invoiceNo} - ${clientName} - ${dateStr}`;
+
+    // 5. Eksekusi Print dengan sedikit delay
     setTimeout(() => {
        window.print();
+       // Opsional: Kembalikan judul asli setelah print dialog tertutup/selesai
+       // document.title = originalTitle; 
     }, 100);
   };
   
@@ -447,6 +622,7 @@ const App = () => {
     const total = formatCurrency(calculateTotal());
     const dp = dpAmount ? formatCurrency(parseNumberInput(dpAmount)) : 'Rp 0';
     const sisa = formatCurrency(calculateBalance());
+    // Format tanggal untuk WA (Pakai format lengkap aja biar formal)
     const eventDate = clientData.eventDateStart 
       ? `${formatDateIndo(clientData.eventDateStart)} ${clientData.eventDateEnd ? 's/d ' + formatDateIndo(clientData.eventDateEnd) : ''}`
       : '-';
@@ -455,6 +631,7 @@ const App = () => {
     message += `Berikut saya lampirkan Invoice Resmi dalam format PDF (Lihat lampiran file).\n\n`;
     message += `*RINGKASAN:*\n`;
     message += `No: ${clientData.invoiceNo}\n`;
+    if(clientData.eventType) message += `Acara: ${clientData.eventType}\n`;
     message += `Paket: ${selectedPackage?.name}\n`;
     message += `Tanggal: ${eventDate}\n`;
     message += `------------------------------\n`;
@@ -476,25 +653,73 @@ const App = () => {
 
   // --- VIEWS ---
   if (view === 'home') {
+    // Filter packages based on category OR focus
+    // If focused, show ONLY that package regardless of category filter (or consistent with focus logic)
+    // Actually simpler: if focused, show that one. If not, apply filters.
+    
+    let packagesToDisplay = PACKAGES;
+    if (focusedPackageId) {
+      packagesToDisplay = PACKAGES.filter(p => p.id === focusedPackageId);
+    } else {
+      packagesToDisplay = PACKAGES.filter(p => activeCategory === 'All' || p.category === activeCategory);
+    }
+
     return (
       <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500 selection:text-black pb-20">
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
-        <div className="pt-32 pb-8 px-6 text-center max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">Tangkap Momen Sempurna</h1>
-          <p className="text-zinc-400 text-sm md:text-lg mb-8 max-w-lg mx-auto leading-relaxed">Abadikan kenangan tak terlupakan dengan sentuhan artistik profesional.</p>
-        </div>
         
-        {/* MODIFIED: CENTERED PACKAGE FILTER NAVBAR */}
-        <div className="px-6 mb-8 flex flex-wrap justify-center gap-2">
-          <button onClick={() => setActiveCategory('All')} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === 'All' ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>All Packages</button>
-          {categories.map(cat => (
-            <button key={cat} onClick={() => setActiveCategory(cat)} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === cat ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>{cat}</button>
-          ))}
-        </div>
+        {/* Hide header in focused mode to give more focus to the card, or keep it? User said "only displaying package UI". 
+            Let's keep the header but maybe simplified, or just keep as is for context. 
+            User said "layar akan hanya menampilkan ui paket tersebut" (screen will only display that package UI).
+            Let's hide the big title and filters when focused.
+        */}
+        
+        {!focusedPackageId && (
+          <>
+            <div className="pt-32 pb-10 px-6 text-center max-w-5xl mx-auto animate-in slide-in-from-top-10 fade-in duration-500">
+              {/* Added pb-3 to prevent bg-clip-text from cutting off descenders like g, p, q, y */}
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-1 bg-gradient-to-b from-white via-white to-zinc-500 bg-clip-text text-transparent pb-3 leading-tight tracking-tighter drop-shadow-lg">
+                Tangkap Momen Sempurna
+              </h1>
+              <div className="w-24 h-1 bg-amber-500 mx-auto mb-4 rounded-full opacity-80"></div>
+              <p className="text-zinc-300 text-sm sm:text-base md:text-xl max-w-3xl mx-auto font-light tracking-wide leading-relaxed">
+                Abadikan kenangan tak terlupakan dengan sentuhan artistik profesional.
+              </p>
+            </div>
+            
+            <div className="px-6 mb-8 flex flex-wrap justify-center gap-2">
+              <button onClick={() => setActiveCategory('All')} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === 'All' ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>All Packages</button>
+              {categories.map(cat => (
+                <button key={cat} onClick={() => setActiveCategory(cat)} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === cat ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>{cat}</button>
+              ))}
+            </div>
+          </>
+        )}
 
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PACKAGES.filter(p => activeCategory === 'All' || p.category === activeCategory).map(pkg => (
-            <PackageCard key={pkg.id} pkg={pkg} onSelect={handleSelectPackage} />
+        {/* Focused Header/Back button if focused */}
+        {focusedPackageId && (
+          <div className="pt-24 pb-4 px-6 max-w-md mx-auto flex justify-start animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <button 
+               onClick={() => setFocusedPackageId(null)}
+               className="flex items-center text-zinc-400 hover:text-white transition-colors group"
+             >
+               <div className="p-1 rounded-full bg-zinc-800 group-hover:bg-zinc-700 mr-2 transition-colors">
+                 <ArrowLeft className="w-4 h-4" /> 
+               </div>
+               Kembali ke Daftar Paket
+             </button>
+          </div>
+        )}
+
+        <div className={`mx-auto px-6 transition-all duration-500 ${focusedPackageId ? 'max-w-md mt-0' : 'max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+          {packagesToDisplay.map(pkg => (
+            <PackageCard 
+              key={pkg.id} 
+              pkg={pkg} 
+              onSelect={handleSelectPackage} 
+              onToggleFocus={handleToggleFocus}
+              isFocused={focusedPackageId === pkg.id}
+            />
           ))}
         </div>
       </div>
@@ -541,14 +766,23 @@ const App = () => {
                   
                   <div className="flex gap-2 w-full md:w-auto">
                     <button 
+                      onClick={() => handleEditFromHistory(invoice)}
+                      className="flex-1 md:flex-none bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      title="Edit Data Invoice"
+                    >
+                      <Pencil className="w-4 h-4"/> Edit
+                    </button>
+                    <button 
                       onClick={() => loadFromHistory(invoice)}
                       className="flex-1 md:flex-none bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      title="Lihat Preview PDF"
                     >
                       <Eye className="w-4 h-4"/> Lihat
                     </button>
                     <button 
                       onClick={() => deleteFromHistory(invoice.id)}
                       className="flex-1 md:flex-none bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/50 px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      title="Hapus Invoice"
                     >
                       <Trash2 className="w-4 h-4"/> Hapus
                     </button>
@@ -597,6 +831,7 @@ const App = () => {
     );
   }
 
+  // --- CONTACT VIEW ---
   if (view === 'contact') {
     return (
       <div className="min-h-screen bg-zinc-950 text-white font-sans">
@@ -633,6 +868,10 @@ const App = () => {
 
   // 4. FORM VIEW
   if (view === 'form') {
+    // Logic for Event Type Select
+    const isCustomEvent = !EVENT_OPTIONS.includes(clientData.eventType) && clientData.eventType !== '';
+    const currentSelectValue = isCustomEvent ? 'Lainnya' : clientData.eventType;
+
     return (
       <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-12 font-sans pt-24 md:pt-12">
         <div className="max-w-3xl mx-auto">
@@ -642,9 +881,18 @@ const App = () => {
 
           <div className="bg-black border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl">
             {/* ... Form Header and Client Inputs ... */}
-            <div className="mb-8 border-b border-zinc-800 pb-6">
-              <h2 className="text-xl md:text-2xl font-bold mb-1">Detail Pemesanan</h2>
-              <p className="text-sm text-zinc-500">Isi data klien untuk membuat invoice</p>
+            <div className="mb-8 border-b border-zinc-800 pb-6 flex justify-between items-start">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold mb-1">
+                  {editingInvoiceId ? 'Edit Invoice' : 'Detail Pemesanan'}
+                </h2>
+                <p className="text-sm text-zinc-500">
+                  {editingInvoiceId ? 'Perbarui data invoice yang sudah ada' : 'Isi data klien untuk membuat invoice'}
+                </p>
+              </div>
+              {editingInvoiceId && (
+                <span className="bg-amber-500/20 text-amber-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Mode Edit</span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
@@ -665,7 +913,11 @@ const App = () => {
                   <input 
                     type="text" 
                     value={clientData.name}
-                    onChange={(e) => setClientData({...clientData, name: e.target.value})}
+                    onChange={(e) => {
+                       // Validasi: Hanya huruf, spasi, titik, koma, petik, strip
+                       const val = e.target.value.replace(/[^a-zA-Z\s.,'-]/g, '');
+                       setClientData({...clientData, name: val});
+                    }}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors uppercase"
                     placeholder="Nama Lengkap"
                   />
@@ -678,52 +930,101 @@ const App = () => {
                   <Phone className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none" />
                   <input 
                     type="text" 
+                    inputMode="numeric"
                     value={clientData.phone}
-                    onChange={(e) => setClientData({...clientData, phone: e.target.value})}
+                    onChange={(e) => {
+                       // Validasi: Hanya angka
+                       const val = e.target.value.replace(/\D/g, '');
+                       setClientData({...clientData, phone: val});
+                    }}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors"
                     placeholder="08..."
                   />
                 </div>
               </div>
 
-              {/* TANGGAL MULAI */}
-              <div className="space-y-2 relative z-10">
-                <label className="text-sm font-medium text-zinc-400">Tanggal Mulai Acara</label>
-                <div className="relative group flex items-center">
-                  <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
-                  <input 
-                    type="date" 
-                    value={clientData.eventDateStart}
-                    onChange={(e) => setClientData({...clientData, eventDateStart: e.target.value})}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10"
-                    style={{ colorScheme: 'dark' }} 
-                  />
-                  {clientData.eventDateStart && (
-                    <button onClick={handleClearDateStart} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus Tanggal">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+              {/* NEW: JENIS KEGIATAN (UPDATED DROPDOWN) */}
+              <div className="space-y-2 col-span-1 md:col-span-2">
+                <label className="text-sm font-medium text-zinc-400">Jenis Kegiatan / Acara</label>
+                <div className="relative">
+                  <PartyPopper className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-10" />
+                  <div className="relative">
+                    <select 
+                      value={currentSelectValue}
+                      onChange={(e) => {
+                         if(e.target.value === 'Lainnya') {
+                             setClientData({...clientData, eventType: 'Lainnya'});
+                         } else {
+                             setClientData({...clientData, eventType: e.target.value});
+                         }
+                      }}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled>Pilih Jenis Acara...</option>
+                      {EVENT_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-zinc-500 pointer-events-none"/>
+                  </div>
                 </div>
+                
+                {/* Manual Input if "Lainnya" is selected */}
+                {(currentSelectValue === 'Lainnya') && (
+                  <div className="mt-2 animate-in slide-in-from-top-2">
+                    <input 
+                      type="text" 
+                      value={clientData.eventType === 'Lainnya' ? '' : clientData.eventType}
+                      onChange={(e) => setClientData({...clientData, eventType: e.target.value})}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors uppercase"
+                      placeholder="Tulis Nama Acara Lainnya..."
+                      autoFocus
+                    />
+                  </div>
+                )}
               </div>
 
-              {/* TANGGAL SELESAI */}
-              <div className="space-y-2 relative z-10">
-                <label className="text-sm font-medium text-zinc-400">Tanggal Selesai Acara (s/d)</label>
-                <div className="relative group flex items-center">
-                  <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
-                  <input 
-                    type="date" 
-                    value={clientData.eventDateEnd}
-                    onChange={(e) => setClientData({...clientData, eventDateEnd: e.target.value})}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10"
-                    style={{ colorScheme: 'dark' }} 
-                  />
-                  {clientData.eventDateEnd && (
-                    <button onClick={handleClearDateEnd} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus Tanggal">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
+              {/* TANGGAL ACARA - 2 KOLOM (DARI TANGGAL & SAMPAI TANGGAL) */}
+              <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* TANGGAL MULAI */}
+                  <div className="space-y-2 relative z-10">
+                    <label className="text-sm font-medium text-zinc-400">Dari Tanggal</label>
+                    <div className="relative group flex items-center">
+                      <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
+                      <input 
+                        type="date" 
+                        value={clientData.eventDateStart}
+                        onChange={(e) => setClientData({...clientData, eventDateStart: e.target.value})}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10"
+                        style={{ colorScheme: 'dark' }} 
+                      />
+                      {clientData.eventDateStart && (
+                        <button onClick={handleClearDateStart} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus Tanggal">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* TANGGAL SELESAI */}
+                  <div className="space-y-2 relative z-10">
+                    <label className="text-sm font-medium text-zinc-400">Sampai Tanggal</label>
+                    <div className="relative group flex items-center">
+                      <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
+                      <input 
+                        type="date" 
+                        value={clientData.eventDateEnd}
+                        onChange={(e) => setClientData({...clientData, eventDateEnd: e.target.value})}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10"
+                        style={{ colorScheme: 'dark' }} 
+                      />
+                      {clientData.eventDateEnd && (
+                        <button onClick={handleClearDateEnd} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus Tanggal">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
               </div>
 
               <div className="space-y-2 col-span-1 md:col-span-2">
@@ -836,7 +1137,7 @@ const App = () => {
             </div>
 
             <button onClick={handleCreateInvoice} disabled={!clientData.name} className="w-full bg-white text-black hover:bg-amber-400 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-amber-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
-              <FileText className="w-5 h-5" /> Buat Invoice
+              <FileText className="w-5 h-5" /> {editingInvoiceId ? 'Perbarui Invoice' : 'Buat Invoice'}
             </button>
           </div>
         </div>
@@ -895,7 +1196,7 @@ const App = () => {
               onClick={saveToHistory}
               className="flex items-center bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg font-bold shadow-lg transition-colors text-sm md:text-base border border-blue-500"
             >
-              <Save className="w-4 h-4 mr-2" /> Simpan ke History
+              <Save className="w-4 h-4 mr-2" /> {editingInvoiceId ? 'Perbarui History' : 'Simpan ke History'}
             </button>
             <button 
               onClick={handlePrint}
@@ -984,6 +1285,12 @@ const App = () => {
               <div className="text-right">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Detail Acara</h3>
                 <div className="space-y-2">
+                   {clientData.eventType && (
+                     <div>
+                        <p className="text-xs text-gray-400 uppercase">Kegiatan</p>
+                        <p className="font-medium text-lg uppercase">{clientData.eventType}</p>
+                     </div>
+                   )}
                    <div>
                       <p className="text-xs text-gray-400 uppercase">Paket</p>
                       <p className="font-medium text-lg">{selectedPackage?.category}</p>
@@ -991,9 +1298,7 @@ const App = () => {
                    <div>
                       <p className="text-xs text-gray-400 uppercase">Tanggal</p>
                       <p className="font-medium text-lg">
-                        {clientData.eventDateStart 
-                          ? `${formatDateIndo(clientData.eventDateStart)} ${clientData.eventDateEnd ? ' - ' + formatDateIndo(clientData.eventDateEnd) : ''}`
-                          : '-'}
+                        {formatEventDateRange(clientData.eventDateStart, clientData.eventDateEnd)}
                       </p>
                    </div>
                 </div>
@@ -1005,7 +1310,7 @@ const App = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-black">
-                    <th className="text-left py-4 text-xs font-bold uppercase tracking-widest text-gray-500 w-2/3">Deskripsi Layanan</th>
+                    <th className="text-left py-4 text-xs font-bold uppercase tracking-widest text-gray-500 w-2/3">Deskripsi Layanan & Kegiatan</th>
                     <th className="text-right py-4 text-xs font-bold uppercase tracking-widest text-gray-500">Jumlah (IDR)</th>
                   </tr>
                 </thead>
@@ -1013,7 +1318,9 @@ const App = () => {
                   {/* Package Row */}
                   <tr>
                     <td className="py-6 align-top">
-                      <p className="font-bold text-xl mb-2">{selectedPackage?.name}</p>
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="font-bold text-xl">{selectedPackage?.name}</p>
+                      </div>
                       <ul className="space-y-1.5">
                         {selectedPackage?.features.map((feat, i) => (
                           <li key={i} className="text-sm text-gray-600 flex items-start">
@@ -1090,7 +1397,9 @@ const App = () => {
              {/* DP Image */}
             {dpProofImage && (
               <div className="mt-8 break-inside-avoid">
-                <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">Bukti Pembayaran</h4>
+                <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">
+                  {dpAmount && parseNumberInput(dpAmount) > 0 ? 'Bukti Pembayaran DP' : 'Bukti Pembayaran'}
+                </h4>
                 <img src={dpProofImage} alt="Bukti Transfer" className="h-32 object-contain border border-gray-200 rounded p-1 bg-white" />
               </div>
             )}
@@ -1105,9 +1414,9 @@ const App = () => {
                    <p className="text-sm text-gray-500 uppercase mt-1">A.N TEDY PURNAJAYA</p>
                 </div>
                 <div className="text-right">
-                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tefhoto Studio</p>
-                   <p className="text-sm text-gray-600">0822 8121 1122</p>
-                   <p className="text-sm text-gray-600">@tefhoto | @tere.production</p>
+                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tefhoto</p>
+                   <p className="text-sm text-gray-600">0822-8121-1122</p>
+                   <p className="text-sm text-gray-600">@TEFHOTO | @TERE.PRODUCTION</p>
                    <p className="text-xs text-gray-400 mt-4 italic">"Terima kasih telah mempercayakan momen Anda kepada kami"</p>
                 </div>
              </div>

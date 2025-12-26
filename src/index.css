@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* optional: reset tambahan */
+/* RESET TAMBAHAN AMAN */
 html, body {
-  background-color: #000;
+  margin: 0;
+  padding: 0;
 }
