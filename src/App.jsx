@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle, PartyPopper, Maximize2, Minimize2, ChevronDown, Pencil, ZoomIn, ZoomOut } from 'lucide-react';
+import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle, PartyPopper, Maximize2, Minimize2, ChevronDown, Pencil, ZoomIn, ZoomOut, Loader2 } from 'lucide-react';
 
 // --- DATA PAKET DARI FILE TEXT ---
 const PACKAGES = [
@@ -264,6 +264,21 @@ const formatEventDateRange = (startDateStr, endDateStr) => {
   return `${start.toLocaleDateString('id-ID', optionsFull)} - ${end.toLocaleDateString('id-ID', optionsFull)}`;
 };
 
+// --- HELPER UNTUK LOAD SCRIPT HTML2PDF ---
+const loadHtml2Pdf = () => {
+  return new Promise((resolve, reject) => {
+    if (window.html2pdf) {
+      resolve(window.html2pdf);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    script.onload = () => resolve(window.html2pdf);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};
+
 // --- COMPONENT: NAVBAR ---
 const Navbar = ({ currentView, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) => (
   <header className="fixed top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800 print:hidden">
@@ -360,6 +375,7 @@ const App = () => {
   const [toastMessage, setToastMessage] = useState(null);
   const [showWaModal, setShowWaModal] = useState(false);
   const [isHistoryMode, setIsHistoryMode] = useState(false);
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false); // New State
   
   // FOCUS MODE & EDIT MODE STATE
   const [focusedPackageId, setFocusedPackageId] = useState(null);
@@ -584,71 +600,151 @@ const App = () => {
     window.scrollTo(0,0);
   };
 
-  // --- PRINT FUNCTION WITH FILENAME CUSTOMIZATION ---
-  const handlePrint = () => {
-    // 1. Simpan judul asli dokumen
-    const originalTitle = document.title;
+  // --- DOWNLOAD PDF FUNCTION (MENGGANTIKAN WINDOW.PRINT) ---
+  const handleDownloadPDF = async () => {
+    setIsPdfGenerating(true);
+    try {
+      await loadHtml2Pdf();
+      const element = document.getElementById('invoice-print-area');
+      
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('id-ID', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+      }).replace(/\//g, '-');
+      const clientName = clientData.name ? clientData.name.replace(/[^a-zA-Z0-9 ]/g, '') : 'CLIENT';
+      const invoiceNo = clientData.invoiceNo || 'INVOICE';
+      const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
+
+      const opt = {
+        margin: [0, 0, 0, 0], 
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false }, 
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await window.html2pdf().set(opt).from(element).save();
+      
+      showToast("PDF Berhasil Diunduh!");
+      
+    } catch (error) {
+      console.error("Gagal membuat PDF:", error);
+      alert("Gagal mengunduh PDF. Pastikan koneksi internet stabil (untuk memuat library).");
+    } finally {
+      setIsPdfGenerating(false);
+    }
+  };
+
+  // --- NEW: GENERATE PDF AS FILE OBJECT (FOR SHARING) ---
+  const generatePdfFile = async () => {
+    await loadHtml2Pdf();
+    const element = document.getElementById('invoice-print-area');
     
-    // 2. Buat format tanggal hari ini (DD-MM-YYYY)
     const today = new Date();
     const dateStr = today.toLocaleDateString('id-ID', {
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric'
-    }).replace(/\//g, '-'); // Ubah "/" menjadi "-" agar valid di nama file
-
-    // 3. Ambil data klien
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '-');
     const clientName = clientData.name ? clientData.name.replace(/[^a-zA-Z0-9 ]/g, '') : 'CLIENT';
     const invoiceNo = clientData.invoiceNo || 'INVOICE';
+    const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
 
-    // 4. Set Judul Dokumen (Ini yang akan jadi nama file default saat Save as PDF)
-    // Format: INV-TEF-2512-001 - BUDI - 26-12-2025
-    document.title = `${invoiceNo} - ${clientName} - ${dateStr}`;
+    const opt = {
+      margin: [0, 0, 0, 0],
+      filename: fileName,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
-    // 5. Eksekusi Print dengan sedikit delay
-    setTimeout(() => {
-       window.print();
-       // Opsional: Kembalikan judul asli setelah print dialog tertutup/selesai
-       // document.title = originalTitle; 
-    }, 100);
+    // Output as blob
+    const blob = await window.html2pdf().set(opt).from(element).output('blob');
+    return new File([blob], fileName, { type: 'application/pdf' });
   };
   
-  // --- WA LOGIC WITH MODAL ---
-  const handleWaClick = () => {
-    setShowWaModal(true);
+  // --- SMART SHARE TO WA (NATIVE SHARE API) ---
+  const handleSmartShare = async () => {
+    setIsPdfGenerating(true);
+    try {
+      // 1. Generate PDF File di Memory
+      const file = await generatePdfFile();
+      
+      // 2. Cek apakah Browser support Share File (Biasanya HP Android/iPhone Support)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: file.name,
+            text: `Halo ${clientData.name}, berikut Invoice resmi dari TEFHOTO.`
+          });
+          // Jika sukses share, tidak perlu lakukan apa-apa lagi
+          showToast("Berhasil membagikan Invoice!");
+        } catch (shareError) {
+          // Jika user membatalkan (AbortError) biarkan saja
+          if (shareError.name !== 'AbortError') {
+             console.error('Share error:', shareError);
+             // Jika error lain, fallback ke metode manual
+             handleFallbackWa(file);
+          }
+        }
+      } else {
+        // 3. Fallback: Jika di Laptop/Browser lama yang tidak support share file
+        handleFallbackWa(file);
+      }
+    } catch (error) {
+      console.error("Gagal generate PDF untuk share:", error);
+      alert("Terjadi kesalahan saat memproses file.");
+    } finally {
+      setIsPdfGenerating(false);
+    }
   };
 
-  const openWaLink = () => {
-    const total = formatCurrency(calculateTotal());
-    const dp = dpAmount ? formatCurrency(parseNumberInput(dpAmount)) : 'Rp 0';
-    const sisa = formatCurrency(calculateBalance());
-    // Format tanggal untuk WA (Pakai format lengkap aja biar formal)
-    const eventDate = clientData.eventDateStart 
-      ? `${formatDateIndo(clientData.eventDateStart)} ${clientData.eventDateEnd ? 's/d ' + formatDateIndo(clientData.eventDateEnd) : ''}`
-      : '-';
+  // Fungsi Fallback untuk Desktop: Download File + Buka WA Manual
+  const handleFallbackWa = (file) => {
+    // Download file secara manual
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-    let message = `Halo *${clientData.name.toUpperCase()}*,\n\n`;
-    message += `Berikut saya lampirkan Invoice Resmi dalam format PDF (Lihat lampiran file).\n\n`;
-    message += `*RINGKASAN:*\n`;
-    message += `No: ${clientData.invoiceNo}\n`;
-    if(clientData.eventType) message += `Acara: ${clientData.eventType}\n`;
-    message += `Paket: ${selectedPackage?.name}\n`;
-    message += `Tanggal: ${eventDate}\n`;
-    message += `------------------------------\n`;
-    message += `*Total Tagihan: ${total}*\n`;
-    message += `*DP: ${dp}*\n`;
-    message += `*Sisa Tagihan: ${sisa}*\n`;
-    message += `------------------------------\n\n`;
-    message += `Pembayaran via: \n*BCA 812-023-8192*\na.n TEDY PURNAJAYA\n\n`;
-    message += `Terima kasih,\n*TEFHOTO*`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-    setShowWaModal(false);
+    // Tampilkan Modal Instruksi Manual
+    setShowWaModal(true);
   };
   
   const handlePrintHelp = () => {
-    alert("JIKA TOMBOL SIMPAN PDF TIDAK BERFUNGSI:\n\n1. Cari menu 'Share' atau 'Bagikan' di browser HP Anda.\n2. Pilih 'Print' atau 'Cetak'.\n3. Pada pilihan Printer, pilih 'Save as PDF'.\n4. Simpan file.");
+    alert("FITUR DOWNLOAD PDF:\n\nSistem sekarang akan mengunduh file PDF secara langsung ke penyimpanan HP/Laptop Anda, tidak lagi membuka menu Printer.\n\nCek folder 'Downloads' di HP Anda setelah klik tombol Simpan.");
+  };
+
+  // Function Buka WA Manual (Hanya Text)
+  const openWaLinkManual = () => {
+      const total = formatCurrency(calculateTotal());
+      const dp = dpAmount ? formatCurrency(parseNumberInput(dpAmount)) : 'Rp 0';
+      const sisa = formatCurrency(calculateBalance());
+      const eventDate = clientData.eventDateStart 
+        ? `${formatDateIndo(clientData.eventDateStart)} ${clientData.eventDateEnd ? 's/d ' + formatDateIndo(clientData.eventDateEnd) : ''}`
+        : '-';
+
+      let message = `Halo *${clientData.name.toUpperCase()}*,\n\n`;
+      message += `Berikut saya lampirkan Invoice Resmi dalam format PDF (File sudah saya unduh, mohon dicek).\n\n`;
+      message += `*RINGKASAN:*\n`;
+      message += `No: ${clientData.invoiceNo}\n`;
+      if(clientData.eventType) message += `Acara: ${clientData.eventType}\n`;
+      message += `Paket: ${selectedPackage?.name}\n`;
+      message += `Tanggal: ${eventDate}\n`;
+      message += `------------------------------\n`;
+      message += `*Total Tagihan: ${total}*\n`;
+      message += `*DP: ${dp}*\n`;
+      message += `*Sisa Tagihan: ${sisa}*\n`;
+      message += `------------------------------\n\n`;
+      message += `Pembayaran via: \n*BCA 812-023-8192*\na.n TEDY PURNAJAYA\n\n`;
+      message += `Terima kasih,\n*TEFHOTO*`;
+
+      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+      setShowWaModal(false);
   };
 
   // --- VIEWS ---
@@ -1199,21 +1295,24 @@ const App = () => {
               <Save className="w-4 h-4 mr-2" /> {editingInvoiceId ? 'Perbarui History' : 'Simpan ke History'}
             </button>
             <button 
-              onClick={handlePrint}
-              className="flex items-center bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-lg font-bold shadow-lg transition-colors text-sm md:text-base border border-zinc-600"
+              onClick={handleDownloadPDF}
+              disabled={isPdfGenerating}
+              className="flex items-center bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-lg font-bold shadow-lg transition-colors text-sm md:text-base border border-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FileDown className="w-4 h-4 mr-2" /> Simpan PDF
+              {isPdfGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FileDown className="w-4 h-4 mr-2" />} 
+              {isPdfGenerating ? 'Memproses...' : 'Simpan PDF'}
             </button>
             <button 
-              onClick={handleWaClick}
-              className="flex items-center bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-bold shadow-lg transition-colors text-sm md:text-base border border-green-500"
+              onClick={handleSmartShare}
+              disabled={isPdfGenerating}
+              className="flex items-center bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-bold shadow-lg transition-colors text-sm md:text-base border border-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-4 h-4 mr-2" /> Kirim ke WA
             </button>
           </div>
         </div>
 
-        {/* WA Modal */}
+        {/* WA Modal Fallback (For Desktop Only) */}
         {showWaModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200 print:hidden">
             <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl max-w-sm w-full shadow-2xl relative">
@@ -1227,21 +1326,19 @@ const App = () => {
                <div className="space-y-4">
                   <div className="bg-zinc-800/50 p-4 rounded-lg border border-zinc-700">
                     <div className="flex gap-3 mb-2">
-                      <div className="bg-zinc-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</div>
-                      <p className="text-sm text-zinc-300 font-medium">Simpan File PDF</p>
+                      <div className="bg-emerald-600 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 text-white"><Check className="w-4 h-4"/></div>
+                      <p className="text-sm text-emerald-400 font-medium">PDF Sudah Terunduh</p>
                     </div>
-                    <button onClick={handlePrint} className="w-full py-2 bg-zinc-700 hover:bg-zinc-600 rounded text-sm text-white transition-colors flex items-center justify-center gap-2">
-                       <FileDown className="w-4 h-4"/> Download / Simpan PDF
-                    </button>
+                    <p className="text-xs text-zinc-400">File PDF sudah tersimpan otomatis di perangkat Anda.</p>
                   </div>
 
                   <div className="bg-zinc-800/50 p-4 rounded-lg border border-zinc-700">
                     <div className="flex gap-3 mb-2">
-                      <div className="bg-zinc-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                      <div className="bg-zinc-700 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 text-white">2</div>
                       <p className="text-sm text-zinc-300 font-medium">Buka WA & Lampirkan</p>
                     </div>
-                    <p className="text-xs text-zinc-400 mb-3">Klik tombol di bawah untuk membuka chat WA, lalu klik ikon <b>Lampiran (Paperclip)</b> &gt; <b>Dokumen</b> dan pilih file PDF tadi.</p>
-                    <button onClick={openWaLink} className="w-full py-2 bg-green-600 hover:bg-green-500 rounded text-sm text-white font-bold transition-colors flex items-center justify-center gap-2">
+                    <p className="text-xs text-zinc-400 mb-3">Klik tombol di bawah untuk membuka chat WA, lalu <b>Lampirkan File PDF</b> yang baru saja terunduh.</p>
+                    <button onClick={openWaLinkManual} className="w-full py-2 bg-green-600 hover:bg-green-500 rounded text-sm text-white font-bold transition-colors flex items-center justify-center gap-2">
                        <Send className="w-4 h-4"/> Buka WhatsApp
                     </button>
                   </div>
