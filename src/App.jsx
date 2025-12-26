@@ -603,9 +603,34 @@ const App = () => {
   // --- DOWNLOAD PDF FUNCTION (MENGGANTIKAN WINDOW.PRINT) ---
   const handleDownloadPDF = async () => {
     setIsPdfGenerating(true);
+    let tempContainer = null;
     try {
       await loadHtml2Pdf();
-      const element = document.getElementById('invoice-print-area');
+      
+      // 1. CLONE & PREPARE (SOLUSI LAYAR HP TERPOTONG)
+      // Kita buat container tak terlihat yang ukurannya dipaksa LEBAR (seperti Desktop)
+      // Ini menipu html2pdf agar merender versi desktop meskipun dibuka di HP
+      const original = document.getElementById('invoice-print-area');
+      if (!original) {
+         throw new Error("Element not found");
+      }
+
+      tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed'; 
+      tempContainer.style.top = '-10000px';
+      tempContainer.style.left = '0';
+      tempContainer.style.width = '210mm'; // KUNCI: Paksa lebar A4
+      tempContainer.style.height = 'auto';
+      tempContainer.style.zIndex = '-1000';
+      tempContainer.style.backgroundColor = 'white'; 
+      
+      const clone = original.cloneNode(true);
+      // Pastikan clone terlihat
+      clone.style.display = 'block';
+      clone.style.transform = 'none'; 
+      
+      tempContainer.appendChild(clone);
+      document.body.appendChild(tempContainer);
       
       const today = new Date();
       const dateStr = today.toLocaleDateString('id-ID', {
@@ -615,17 +640,23 @@ const App = () => {
       const invoiceNo = clientData.invoiceNo || 'INVOICE';
       const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
 
-      // Set windowWidth agar html2canvas mensimulasikan layar Desktop (1000px)
-      // Ini kunci agar layout tidak turun/responsif saat di generate di HP
       const opt = {
         margin: [0, 0, 0, 0], 
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 1000 }, 
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false, 
+            windowWidth: 1200, // Simulasi lebar layar desktop
+            scrollY: 0,
+            scrollX: 0
+        }, 
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      await window.html2pdf().set(opt).from(element).save();
+      // Generate dari CLONE, bukan original
+      await window.html2pdf().set(opt).from(clone).save();
       
       showToast("PDF Berhasil Diunduh!");
       
@@ -633,6 +664,10 @@ const App = () => {
       console.error("Gagal membuat PDF:", error);
       alert("Gagal mengunduh PDF. Pastikan koneksi internet stabil (untuk memuat library).");
     } finally {
+      // Hapus container setelah selesai agar tidak menumpuk
+      if (tempContainer && document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+      }
       setIsPdfGenerating(false);
     }
   };
@@ -640,27 +675,59 @@ const App = () => {
   // --- NEW: GENERATE PDF AS FILE OBJECT (FOR SHARING) ---
   const generatePdfFile = async () => {
     await loadHtml2Pdf();
-    const element = document.getElementById('invoice-print-area');
-    
-    const today = new Date();
-    const dateStr = today.toLocaleDateString('id-ID', {
-      day: '2-digit', month: '2-digit', year: 'numeric'
-    }).replace(/\//g, '-');
-    const clientName = clientData.name ? clientData.name.replace(/[^a-zA-Z0-9 ]/g, '') : 'CLIENT';
-    const invoiceNo = clientData.invoiceNo || 'INVOICE';
-    const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
+    let tempContainer = null;
+    let blob = null;
 
-    const opt = {
-      margin: [0, 0, 0, 0],
-      filename: fileName,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 1000 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    try {
+        const original = document.getElementById('invoice-print-area');
+        tempContainer = document.createElement('div');
+        tempContainer.style.position = 'fixed'; 
+        tempContainer.style.top = '-10000px';
+        tempContainer.style.left = '0';
+        tempContainer.style.width = '210mm'; // Paksa lebar A4
+        tempContainer.style.height = 'auto';
+        tempContainer.style.zIndex = '-1000';
+        tempContainer.style.backgroundColor = 'white'; 
+        
+        const clone = original.cloneNode(true);
+        clone.style.display = 'block';
+        clone.style.transform = 'none'; 
+        
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+        
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('id-ID', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+        }).replace(/\//g, '-');
+        const clientName = clientData.name ? clientData.name.replace(/[^a-zA-Z0-9 ]/g, '') : 'CLIENT';
+        const invoiceNo = clientData.invoiceNo || 'INVOICE';
+        const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
 
-    // Output as blob
-    const blob = await window.html2pdf().set(opt).from(element).output('blob');
-    return new File([blob], fileName, { type: 'application/pdf' });
+        const opt = {
+        margin: [0, 0, 0, 0],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false, 
+            windowWidth: 1200, 
+            scrollY: 0,
+            scrollX: 0
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Output as blob from CLONE
+        blob = await window.html2pdf().set(opt).from(clone).output('blob');
+        return new File([blob], fileName, { type: 'application/pdf' });
+
+    } finally {
+        if (tempContainer && document.body.contains(tempContainer)) {
+            document.body.removeChild(tempContainer);
+        }
+    }
   };
   
   // --- SMART SHARE TO WA (NATIVE SHARE API) ---
