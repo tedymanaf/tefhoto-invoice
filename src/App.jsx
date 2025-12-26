@@ -615,11 +615,13 @@ const App = () => {
       const invoiceNo = clientData.invoiceNo || 'INVOICE';
       const fileName = `${invoiceNo} - ${clientName} - ${dateStr}.pdf`;
 
+      // Set windowWidth agar html2canvas mensimulasikan layar Desktop (1000px)
+      // Ini kunci agar layout tidak turun/responsif saat di generate di HP
       const opt = {
         margin: [0, 0, 0, 0], 
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false }, 
+        html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 1000 }, 
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
@@ -652,7 +654,7 @@ const App = () => {
       margin: [0, 0, 0, 0],
       filename: fileName,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
+      html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 1000 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
@@ -1356,168 +1358,171 @@ const App = () => {
         )}
 
         {/* Invoice Paper A4 - MODERN ELEGANT DESIGN */}
-        <div id="invoice-print-area" className="bg-white text-black w-full md:w-[210mm] min-h-[297mm] mx-auto shadow-2xl print:shadow-none print:w-full print:m-0 print:static box-border relative font-sans flex flex-col">
-          
-          {/* Header Block - FULL WIDTH BLACK */}
-          <div className="bg-black text-white px-8 py-10 flex justify-between items-center print:bg-black print:text-white">
-             <div>
-                <h1 className="text-5xl font-black tracking-tighter mb-1">TEFHOTO</h1>
-                <p className="text-xs tracking-[0.2em] uppercase text-zinc-400">Professional Photography & Videography</p>
-             </div>
-             <div className="text-right">
-                <h2 className="text-4xl font-thin tracking-widest opacity-80">INVOICE</h2>
-                <p className="text-sm text-zinc-400 mt-1 font-mono">{clientData.invoiceNo}</p>
-             </div>
-          </div>
-
-          <div className="p-8 md:p-12 flex-grow">
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-12 mb-12">
-              <div>
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Ditagihkan Kepada</h3>
-                <p className="font-bold text-2xl uppercase mb-1">{clientData.name?.toUpperCase()}</p>
-                <p className="text-gray-600 mb-1">{clientData.phone}</p>
-                {clientData.address && <p className="text-gray-500 text-sm uppercase leading-relaxed">{clientData.address?.toUpperCase()}</p>}
-              </div>
-              <div className="text-right">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Detail Acara</h3>
-                <div className="space-y-2">
-                   {clientData.eventType && (
-                     <div>
-                        <p className="text-xs text-gray-400 uppercase">Kegiatan</p>
-                        <p className="font-medium text-lg uppercase">{clientData.eventType}</p>
-                     </div>
-                   )}
-                   <div>
-                      <p className="text-xs text-gray-400 uppercase">Paket</p>
-                      <p className="font-medium text-lg">{selectedPackage?.category}</p>
-                   </div>
-                   <div>
-                      <p className="text-xs text-gray-400 uppercase">Tanggal</p>
-                      <p className="font-medium text-lg">
-                        {formatEventDateRange(clientData.eventDateStart, clientData.eventDateEnd)}
-                      </p>
-                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modern Table */}
-            <div className="mb-8">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-black">
-                    <th className="text-left py-4 text-xs font-bold uppercase tracking-widest text-gray-500 w-2/3">Deskripsi Layanan & Kegiatan</th>
-                    <th className="text-right py-4 text-xs font-bold uppercase tracking-widest text-gray-500">Jumlah (IDR)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {/* Package Row */}
-                  <tr>
-                    <td className="py-6 align-top">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="font-bold text-xl">{selectedPackage?.name}</p>
-                      </div>
-                      <ul className="space-y-1.5">
-                        {selectedPackage?.features.map((feat, i) => (
-                          <li key={i} className="text-sm text-gray-600 flex items-start">
-                            <span className="w-1.5 h-1.5 bg-gray-300 rounded-full mr-3 mt-1.5"></span> {feat}
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td className="py-6 text-right align-top font-mono text-lg font-medium">
-                      {formatCurrency(selectedPackage?.price)}
-                    </td>
-                  </tr>
-
-                  {/* Additional Items */}
-                  {additionalItems.map((item, idx) => (
-                      <tr key={idx}>
-                        <td className="py-4 pl-4 align-middle">
-                          <div className="flex items-center">
-                             <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded mr-3">TAMBAHAN</span>
-                             <span className="text-gray-700 font-medium uppercase">{item.desc?.toUpperCase()}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 text-right font-mono text-gray-700">{formatCurrency(item.cost)}</td>
-                      </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {/* WRAPPER FOR HORIZONTAL SCROLL ON MOBILE */}
+        <div className="overflow-x-auto w-full flex justify-center pb-8">
+            <div id="invoice-print-area" className="bg-white text-black w-[210mm] min-w-[210mm] min-h-[297mm] shadow-2xl print:shadow-none print:w-full print:m-0 print:static box-border relative font-sans flex flex-col shrink-0">
             
-            {/* Totals Section - Modern Card */}
-            <div className="flex justify-end mt-4">
-              <div className="w-full md:w-5/12">
-                 <div className="space-y-3 pb-4 border-b border-gray-200">
-                    <div className="flex justify-between text-gray-500 text-sm">
-                       <span>Subtotal Paket</span>
-                       <span className="font-mono">{formatCurrency(selectedPackage?.price)}</span>
-                    </div>
-                    {additionalItems.length > 0 && (
-                      <div className="flex justify-between text-gray-500 text-sm">
-                         <span>Biaya Tambahan</span>
-                         <span className="font-mono">{formatCurrency(calculateAdditionalTotal())}</span>
-                      </div>
-                    )}
-                 </div>
-
-                 <div className="py-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                       <span className="font-bold text-gray-800">Total Tagihan</span>
-                       <span className="font-bold font-mono text-lg">{formatCurrency(calculateTotal())}</span>
-                    </div>
-                    {dpAmount && parseNumberInput(dpAmount) > 0 && (
-                       <div className="flex justify-between items-center text-emerald-600">
-                          <span className="text-sm flex items-center"><Check className="w-3 h-3 mr-1"/> Pembayaran DP</span>
-                          <span className="font-mono font-medium">- {formatCurrency(parseNumberInput(dpAmount))}</span>
-                       </div>
-                    )}
-                 </div>
-
-                 <div className="bg-black text-white p-4 rounded-lg mt-2 flex justify-between items-center shadow-lg print:bg-black print:text-white">
-                    <span className="text-sm font-bold uppercase tracking-widest">Sisa Tagihan</span>
-                    <span className="text-2xl font-black">{formatCurrency(calculateBalance())}</span>
-                 </div>
-              </div>
-            </div>
-
-            {/* Notes Section */}
-            {clientData.notes && (
-               <div className="mt-12 p-6 bg-gray-50 border-l-4 border-amber-500 rounded-r-lg">
-                 <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Catatan Khusus</h4>
-                 <p className="text-sm text-gray-700 italic">"{clientData.notes?.toUpperCase()}"</p>
-               </div>
-            )}
-             
-             {/* DP Image */}
-            {dpProofImage && (
-              <div className="mt-8 break-inside-avoid">
-                <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">
-                  {dpAmount && parseNumberInput(dpAmount) > 0 ? 'Bukti Pembayaran DP' : 'Bukti Pembayaran'}
-                </h4>
-                <img src={dpProofImage} alt="Bukti Transfer" className="h-32 object-contain border border-gray-200 rounded p-1 bg-white" />
-              </div>
-            )}
-          </div>
-
-          {/* Footer - Elegant */}
-          <div className="bg-zinc-50 px-8 py-8 border-t border-zinc-200 print:bg-gray-50 break-inside-avoid">
-             <div className="grid grid-cols-2 gap-8">
+            {/* Header Block - FULL WIDTH BLACK */}
+            <div className="bg-black text-white px-8 py-10 flex justify-between items-center print:bg-black print:text-white">
                 <div>
-                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pembayaran Transfer</p>
-                   <p className="font-bold text-xl text-gray-800">BCA 812-023-8192</p>
-                   <p className="text-sm text-gray-500 uppercase mt-1">A.N TEDY PURNAJAYA</p>
+                    <h1 className="text-5xl font-black tracking-tighter mb-1">TEFHOTO</h1>
+                    <p className="text-xs tracking-[0.2em] uppercase text-zinc-400">Professional Photography & Videography</p>
                 </div>
                 <div className="text-right">
-                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tefhoto</p>
-                   <p className="text-sm text-gray-600">0822-8121-1122</p>
-                   <p className="text-sm text-gray-600">@TEFHOTO | @TERE.PRODUCTION</p>
-                   <p className="text-xs text-gray-400 mt-4 italic">"Terima kasih telah mempercayakan momen Anda kepada kami"</p>
+                    <h2 className="text-4xl font-thin tracking-widest opacity-80">INVOICE</h2>
+                    <p className="text-sm text-zinc-400 mt-1 font-mono">{clientData.invoiceNo}</p>
                 </div>
-             </div>
-          </div>
+            </div>
+
+            <div className="p-8 md:p-12 flex-grow">
+                {/* Info Grid - NON RESPONSIVE GRID (ALWAYS 2 COLS) */}
+                <div className="grid grid-cols-2 gap-12 mb-12">
+                <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Ditagihkan Kepada</h3>
+                    <p className="font-bold text-2xl uppercase mb-1">{clientData.name?.toUpperCase()}</p>
+                    <p className="text-gray-600 mb-1">{clientData.phone}</p>
+                    {clientData.address && <p className="text-gray-500 text-sm uppercase leading-relaxed">{clientData.address?.toUpperCase()}</p>}
+                </div>
+                <div className="text-right">
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Detail Acara</h3>
+                    <div className="space-y-2">
+                    {clientData.eventType && (
+                        <div>
+                            <p className="text-xs text-gray-400 uppercase">Kegiatan</p>
+                            <p className="font-medium text-lg uppercase">{clientData.eventType}</p>
+                        </div>
+                    )}
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">Paket</p>
+                        <p className="font-medium text-lg">{selectedPackage?.category}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs text-gray-400 uppercase">Tanggal</p>
+                        <p className="font-medium text-lg">
+                            {formatEventDateRange(clientData.eventDateStart, clientData.eventDateEnd)}
+                        </p>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                {/* Modern Table */}
+                <div className="mb-8">
+                <table className="w-full">
+                    <thead>
+                    <tr className="border-b-2 border-black">
+                        <th className="text-left py-4 text-xs font-bold uppercase tracking-widest text-gray-500 w-2/3">Deskripsi Layanan & Kegiatan</th>
+                        <th className="text-right py-4 text-xs font-bold uppercase tracking-widest text-gray-500">Jumlah (IDR)</th>
+                    </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                    {/* Package Row */}
+                    <tr>
+                        <td className="py-6 align-top">
+                        <div className="flex justify-between items-start mb-2">
+                            <p className="font-bold text-xl">{selectedPackage?.name}</p>
+                        </div>
+                        <ul className="space-y-1.5">
+                            {selectedPackage?.features.map((feat, i) => (
+                            <li key={i} className="text-sm text-gray-600 flex items-start">
+                                <span className="w-1.5 h-1.5 bg-gray-300 rounded-full mr-3 mt-1.5"></span> {feat}
+                            </li>
+                            ))}
+                        </ul>
+                        </td>
+                        <td className="py-6 text-right align-top font-mono text-lg font-medium">
+                        {formatCurrency(selectedPackage?.price)}
+                        </td>
+                    </tr>
+
+                    {/* Additional Items */}
+                    {additionalItems.map((item, idx) => (
+                        <tr key={idx}>
+                            <td className="py-4 pl-4 align-middle">
+                            <div className="flex items-center">
+                                <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded mr-3">TAMBAHAN</span>
+                                <span className="text-gray-700 font-medium uppercase">{item.desc?.toUpperCase()}</span>
+                            </div>
+                            </td>
+                            <td className="py-4 text-right font-mono text-gray-700">{formatCurrency(item.cost)}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
+                
+                {/* Totals Section - FIXED WIDTH LAYOUT */}
+                <div className="flex justify-end mt-4">
+                <div className="w-5/12">
+                    <div className="space-y-3 pb-4 border-b border-gray-200">
+                        <div className="flex justify-between text-gray-500 text-sm">
+                        <span>Subtotal Paket</span>
+                        <span className="font-mono">{formatCurrency(selectedPackage?.price)}</span>
+                        </div>
+                        {additionalItems.length > 0 && (
+                        <div className="flex justify-between text-gray-500 text-sm">
+                            <span>Biaya Tambahan</span>
+                            <span className="font-mono">{formatCurrency(calculateAdditionalTotal())}</span>
+                        </div>
+                        )}
+                    </div>
+
+                    <div className="py-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                        <span className="font-bold text-gray-800">Total Tagihan</span>
+                        <span className="font-bold font-mono text-lg">{formatCurrency(calculateTotal())}</span>
+                        </div>
+                        {dpAmount && parseNumberInput(dpAmount) > 0 && (
+                        <div className="flex justify-between items-center text-emerald-600">
+                            <span className="text-sm flex items-center"><Check className="w-3 h-3 mr-1"/> Pembayaran DP</span>
+                            <span className="font-mono font-medium">- {formatCurrency(parseNumberInput(dpAmount))}</span>
+                        </div>
+                        )}
+                    </div>
+
+                    <div className="bg-black text-white p-4 rounded-lg mt-2 flex justify-between items-center shadow-lg print:bg-black print:text-white">
+                        <span className="text-sm font-bold uppercase tracking-widest">Sisa Tagihan</span>
+                        <span className="text-2xl font-black">{formatCurrency(calculateBalance())}</span>
+                    </div>
+                </div>
+                </div>
+
+                {/* Notes Section */}
+                {clientData.notes && (
+                <div className="mt-12 p-6 bg-gray-50 border-l-4 border-amber-500 rounded-r-lg">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Catatan Khusus</h4>
+                    <p className="text-sm text-gray-700 italic">"{clientData.notes?.toUpperCase()}"</p>
+                </div>
+                )}
+                
+                {/* DP Image */}
+                {dpProofImage && (
+                <div className="mt-8 break-inside-avoid">
+                    <h4 className="text-xs font-bold text-gray-400 uppercase mb-3">
+                    {dpAmount && parseNumberInput(dpAmount) > 0 ? 'Bukti Pembayaran DP' : 'Bukti Pembayaran'}
+                    </h4>
+                    <img src={dpProofImage} alt="Bukti Transfer" className="h-32 object-contain border border-gray-200 rounded p-1 bg-white" />
+                </div>
+                )}
+            </div>
+
+            {/* Footer - Elegant */}
+            <div className="bg-zinc-50 px-8 py-8 border-t border-zinc-200 print:bg-gray-50 break-inside-avoid">
+                <div className="grid grid-cols-2 gap-8">
+                    <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pembayaran Transfer</p>
+                    <p className="font-bold text-xl text-gray-800">BCA 812-023-8192</p>
+                    <p className="text-sm text-gray-500 uppercase mt-1">A.N TEDY PURNAJAYA</p>
+                    </div>
+                    <div className="text-right">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Tefhoto</p>
+                    <p className="text-sm text-gray-600">0822-8121-1122</p>
+                    <p className="text-sm text-gray-600">@TEFHOTO | @TERE.PRODUCTION</p>
+                    <p className="text-xs text-gray-400 mt-4 italic">"Terima kasih telah mempercayakan momen Anda kepada kami"</p>
+                    </div>
+                </div>
+            </div>
+            </div>
         </div>
       </div>
     );
