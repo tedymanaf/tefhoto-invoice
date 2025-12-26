@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle, PartyPopper, Maximize2, Minimize2, ChevronDown, Pencil, ZoomIn, ZoomOut, Loader2 } from 'lucide-react';
+import { Camera, Printer, FileText, User, Calendar, MapPin, Check, ArrowLeft, Plus, Trash2, Download, Instagram, Phone, Menu, X, Image as ImageIcon, Mail, Globe, Upload, CreditCard, Share2, Send, AlertTriangle, FileDown, History, Save, Eye, HelpCircle, CheckCircle, PartyPopper, Maximize2, Minimize2, ChevronDown, Pencil, ZoomIn, ZoomOut, Loader2, Sparkles, Star } from 'lucide-react';
 
 // --- DATA PAKET DARI FILE TEXT ---
 const PACKAGES = [
@@ -269,35 +269,40 @@ const loadHtml2Pdf = () => {
   });
 };
 
+// --- MODERN UI COMPONENTS ---
+
 const Navbar = ({ currentView, onNavigate, isMobileMenuOpen, onToggleMobileMenu }) => (
-  <header className="fixed top-0 w-full z-40 bg-black/90 backdrop-blur-md border-b border-zinc-800 print:hidden">
+  <header className="fixed top-0 w-full z-40 bg-black/60 backdrop-blur-xl border-b border-white/10 print:hidden transition-all duration-300">
     <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <div 
-        className="flex items-center gap-2 cursor-pointer"
+        className="flex items-center gap-2 cursor-pointer group"
         onClick={() => onNavigate('home')}
       >
-        <Camera className="w-6 h-6 text-amber-500" />
-        <span className="font-bold text-xl tracking-tighter text-white">TEFHOTO</span>
+        <div className="relative">
+          <Camera className="w-6 h-6 text-amber-500 relative z-10 transition-transform group-hover:rotate-12" />
+          <div className="absolute inset-0 bg-amber-500/50 blur-lg rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+        </div>
+        <span className="font-bold text-xl tracking-tighter text-white group-hover:text-amber-100 transition-colors">TEFHOTO</span>
       </div>
       
-      <nav className="hidden md:flex gap-6 text-sm font-medium text-zinc-400">
-        <button onClick={() => onNavigate('portfolio')} className={`hover:text-white transition-colors ${currentView === 'portfolio' ? 'text-white' : ''}`}>Portfolio</button>
-        <button onClick={() => onNavigate('home')} className={`hover:text-white transition-colors ${currentView === 'home' ? 'text-white' : ''}`}>Pricing</button>
-        <button onClick={() => onNavigate('history')} className={`flex items-center gap-1 hover:text-white transition-colors ${currentView === 'history' ? 'text-amber-500' : ''}`}><History className="w-4 h-4"/> History</button>
-        <button onClick={() => onNavigate('contact')} className={`hover:text-white transition-colors ${currentView === 'contact' ? 'text-white' : ''}`}>Contact</button>
+      <nav className="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
+        <button onClick={() => onNavigate('portfolio')} className={`hover:text-white transition-all hover:scale-105 ${currentView === 'portfolio' ? 'text-white font-semibold' : ''}`}>Portfolio</button>
+        <button onClick={() => onNavigate('home')} className={`hover:text-white transition-all hover:scale-105 ${currentView === 'home' ? 'text-white font-semibold' : ''}`}>Harga & Paket</button>
+        <button onClick={() => onNavigate('history')} className={`flex items-center gap-1 hover:text-white transition-all hover:scale-105 ${currentView === 'history' ? 'text-amber-500 font-semibold' : ''}`}><History className="w-4 h-4"/> Riwayat</button>
+        <button onClick={() => onNavigate('contact')} className={`hover:text-white transition-all hover:scale-105 ${currentView === 'contact' ? 'text-white font-semibold' : ''}`}>Kontak</button>
       </nav>
 
-      <button className="md:hidden text-zinc-400 hover:text-white" onClick={onToggleMobileMenu}>
+      <button className="md:hidden text-zinc-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors" onClick={onToggleMobileMenu}>
         {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
     </div>
 
     {isMobileMenuOpen && (
-      <div className="md:hidden absolute top-16 left-0 w-full bg-zinc-900 border-b border-zinc-800 p-4 flex flex-col gap-4 shadow-2xl animate-in slide-in-from-top-5 duration-200 z-50">
-          <button onClick={() => onNavigate('portfolio')} className="text-left px-4 py-3 rounded-lg hover:bg-zinc-800 text-zinc-300 font-medium">Portfolio</button>
-          <button onClick={() => onNavigate('home')} className="text-left px-4 py-3 rounded-lg hover:bg-zinc-800 text-zinc-300 font-medium">Pricing</button>
-          <button onClick={() => onNavigate('history')} className="text-left px-4 py-3 rounded-lg hover:bg-zinc-800 text-zinc-300 font-medium flex items-center gap-2"><History className="w-4 h-4"/> History</button>
-          <button onClick={() => onNavigate('contact')} className="text-left px-4 py-3 rounded-lg hover:bg-zinc-800 text-zinc-300 font-medium">Contact</button>
+      <div className="md:hidden absolute top-16 left-0 w-full bg-black/95 backdrop-blur-xl border-b border-white/10 p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-5 duration-200 z-50">
+          <button onClick={() => onNavigate('portfolio')} className="text-left px-4 py-3 rounded-xl hover:bg-white/10 text-zinc-300 font-medium transition-colors">Portfolio</button>
+          <button onClick={() => onNavigate('home')} className="text-left px-4 py-3 rounded-xl hover:bg-white/10 text-zinc-300 font-medium transition-colors">Harga & Paket</button>
+          <button onClick={() => onNavigate('history')} className="text-left px-4 py-3 rounded-xl hover:bg-white/10 text-zinc-300 font-medium flex items-center gap-2 transition-colors"><History className="w-4 h-4"/> Riwayat</button>
+          <button onClick={() => onNavigate('contact')} className="text-left px-4 py-3 rounded-xl hover:bg-white/10 text-zinc-300 font-medium transition-colors">Kontak</button>
       </div>
     )}
   </header>
@@ -306,51 +311,63 @@ const Navbar = ({ currentView, onNavigate, isMobileMenuOpen, onToggleMobileMenu 
 const PackageCard = ({ pkg, onSelect, onToggleFocus, isFocused }) => (
   <div 
     onClick={() => onToggleFocus(pkg.id)}
-    className={`bg-zinc-900 border rounded-xl overflow-hidden transition-all duration-300 group flex flex-col h-full active:scale-[0.98] relative ${
-      isFocused 
-        ? 'border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.2)] scale-[1.02] z-10 cursor-zoom-out' 
-        : 'border-zinc-800 hover:border-amber-500/50 cursor-zoom-in'
-    }`}
+    className={`
+      relative bg-zinc-900/40 backdrop-blur-md border rounded-2xl overflow-hidden transition-all duration-500 group flex flex-col h-full 
+      hover:shadow-[0_0_40px_-10px_rgba(245,158,11,0.3)]
+      ${isFocused 
+        ? 'border-amber-500 shadow-[0_0_50px_rgba(245,158,11,0.2)] scale-[1.02] z-10 cursor-zoom-out' 
+        : 'border-white/5 hover:border-amber-500/50 hover:-translate-y-1 cursor-zoom-in'
+      }
+    `}
   >
+    {/* Glow Effect */}
+    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
     <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
        {isFocused ? (
-         <div className="bg-black/50 p-1 rounded-full backdrop-blur"><Minimize2 className="w-4 h-4 text-zinc-400" /></div>
+         <div className="bg-black/60 p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors"><Minimize2 className="w-4 h-4 text-white" /></div>
        ) : (
-         <div className="bg-black/50 p-1 rounded-full backdrop-blur"><Maximize2 className="w-4 h-4 text-zinc-400" /></div>
+         <div className="bg-black/60 p-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 transition-colors"><Maximize2 className="w-4 h-4 text-white" /></div>
        )}
     </div>
 
-    <div className="p-6 flex-grow">
-      <div className="flex justify-between items-start mb-4">
+    <div className="p-8 flex-grow relative z-10">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <span className="text-xs font-medium text-amber-500 uppercase tracking-wider">{pkg.category}</span>
-          <h3 className="text-xl font-bold text-white mt-1 group-hover:text-amber-400 transition-colors">{pkg.name}</h3>
+          <span className="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">{pkg.category}</span>
+          <h3 className="text-2xl font-bold text-white group-hover:text-amber-400 transition-colors">{pkg.name}</h3>
         </div>
       </div>
-      <div className="space-y-3 mb-6">
+      <div className="space-y-4 mb-6">
         {pkg.features.map((feature, idx) => (
-          <div key={idx} className="flex items-start text-zinc-400 text-sm">
-            <Check className="w-4 h-4 text-emerald-500 mr-2 mt-0.5 flex-shrink-0" />
+          <div key={idx} className="flex items-start text-zinc-400 text-sm group-hover:text-zinc-300 transition-colors">
+            <div className="mt-1 mr-3 min-w-[16px]">
+              <Check className="w-4 h-4 text-emerald-500" />
+            </div>
             <span className="leading-snug">{feature}</span>
           </div>
         ))}
       </div>
     </div>
-    <div className="bg-zinc-950 p-4 border-t border-zinc-800 flex items-center justify-between">
-      <span className="text-lg font-bold text-white">{formatCurrency(pkg.price)}</span>
+    <div className="bg-black/40 p-6 border-t border-white/5 flex items-center justify-between relative z-10">
+      <div>
+        <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider mb-0.5">Mulai Dari</p>
+        <span className="text-xl font-bold text-white tracking-tight">{formatCurrency(pkg.price)}</span>
+      </div>
       <button 
         onClick={(e) => {
           e.stopPropagation();
           onSelect(pkg);
         }}
-        className="bg-white text-black hover:bg-amber-400 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-md z-20 relative cursor-pointer"
+        className="bg-white text-black hover:bg-amber-400 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg hover:shadow-amber-500/50 transform hover:scale-105 active:scale-95 z-20 relative cursor-pointer flex items-center gap-2"
       >
-        Pilih
+        Pilih Paket <ArrowLeft className="w-4 h-4 rotate-180" />
       </button>
     </div>
   </div>
 );
 
+// --- MAIN APP COMPONENT ---
 const App = () => {
   const [view, setView] = useState('home'); 
   const [selectedPackage, setSelectedPackage] = useState(null);
@@ -364,6 +381,10 @@ const App = () => {
   
   const [focusedPackageId, setFocusedPackageId] = useState(null);
   const [editingInvoiceId, setEditingInvoiceId] = useState(null);
+
+  // --- PREVIEW SCALING STATE ---
+  const [previewScale, setPreviewScale] = useState(1);
+  const previewContainerRef = useRef(null);
   
   const [clientData, setClientData] = useState({
     name: '',
@@ -395,6 +416,28 @@ const App = () => {
       }
     }
   }, []);
+
+  // --- AUTO SCALE LOGIC FOR MOBILE PREVIEW ---
+  useEffect(() => {
+    const handleResize = () => {
+      if (view === 'preview' && previewContainerRef.current) {
+        const containerWidth = window.innerWidth;
+        const targetWidth = 830; // 794px A4 + margins
+        
+        // Hanya scale down jika layar lebih kecil dari dokumen
+        if (containerWidth < targetWidth) {
+           const newScale = (containerWidth - 32) / 794; // 32px padding safety
+           setPreviewScale(newScale);
+        } else {
+           setPreviewScale(1);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Init call
+    return () => window.removeEventListener('resize', handleResize);
+  }, [view]);
 
   const showToast = (message) => {
     setToastMessage(message);
@@ -582,6 +625,8 @@ const App = () => {
 
       const A4_WIDTH_PX = 794; 
       
+      // Menggunakan container tersembunyi untuk proses generate PDF
+      // agar tidak terpengaruh oleh scaling CSS di preview
       tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
@@ -592,12 +637,15 @@ const App = () => {
       document.body.appendChild(tempContainer);
 
       const clone = original.cloneNode(true);
+      
+      // Reset transform scaling pada clone untuk hasil PDF yang tajam
+      // Hapus inline style transform yang mungkin terbawa
+      clone.style.transform = 'none'; 
       clone.style.width = '100%';
-      clone.style.height = '1123px'; // Fix A4 height in pixels for better consistency
+      clone.style.height = '1123px';
       clone.style.minWidth = `${A4_WIDTH_PX}px`;
       clone.style.margin = '0';
       clone.style.padding = '0';
-      clone.style.transform = 'none';
       clone.style.display = 'flex';
       clone.style.flexDirection = 'column';
       
@@ -657,12 +705,12 @@ const App = () => {
         document.body.appendChild(tempContainer);
         
         const clone = original.cloneNode(true);
+        clone.style.transform = 'none';
         clone.style.width = '100%';
         clone.style.height = '1123px';
         clone.style.minWidth = `${A4_WIDTH_PX}px`;
         clone.style.margin = '0';
         clone.style.padding = '0';
-        clone.style.transform = 'none';
         clone.style.display = 'flex';
         clone.style.flexDirection = 'column';
         
@@ -781,25 +829,31 @@ const App = () => {
     }
 
     return (
-      <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500 selection:text-black pb-20">
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-amber-500 selection:text-black pb-20 relative overflow-hidden">
+        {/* Background Ambient Light */}
+        <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-zinc-800/20 via-black to-black -z-10"></div>
+        <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-amber-600/10 rounded-full blur-[128px] -z-10"></div>
+
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
         
         {!focusedPackageId && (
           <>
-            <div className="pt-32 pb-10 px-6 text-center max-w-5xl mx-auto animate-in slide-in-from-top-10 fade-in duration-500">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-1 bg-gradient-to-b from-white via-white to-zinc-500 bg-clip-text text-transparent pb-3 leading-tight tracking-tighter drop-shadow-lg">
+            <div className="pt-32 pb-10 px-6 text-center max-w-5xl mx-auto animate-in slide-in-from-top-10 fade-in duration-700">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-amber-500 mb-6 backdrop-blur-md">
+                <Sparkles className="w-3 h-3" /> <span>Professional Photography Services</span>
+              </div>
+              <h1 className="text-4xl sm:text-6xl md:text-7xl font-black mb-4 bg-gradient-to-br from-white via-white to-zinc-500 bg-clip-text text-transparent pb-2 leading-tight tracking-tighter drop-shadow-2xl">
                 Tangkap Momen Sempurna
               </h1>
-              <div className="w-24 h-1 bg-amber-500 mx-auto mb-4 rounded-full opacity-80"></div>
-              <p className="text-zinc-300 text-sm sm:text-base md:text-xl max-w-3xl mx-auto font-light tracking-wide leading-relaxed">
-                Abadikan kenangan tak terlupakan dengan sentuhan artistik profesional.
+              <p className="text-zinc-400 text-sm sm:text-base md:text-xl max-w-2xl mx-auto font-light tracking-wide leading-relaxed mb-8">
+                Abadikan kenangan tak terlupakan dengan sentuhan artistik profesional bersama TEFHOTO.
               </p>
             </div>
             
-            <div className="px-6 mb-8 flex flex-wrap justify-center gap-2">
-              <button onClick={() => setActiveCategory('All')} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === 'All' ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>Semua Paket</button>
+            <div className="px-6 mb-12 flex flex-wrap justify-center gap-3">
+              <button onClick={() => setActiveCategory('All')} className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold border transition-all duration-300 ${activeCategory === 'All' ? 'bg-white text-black border-white shadow-lg shadow-white/10 scale-105' : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10 hover:text-white'}`}>Semua Paket</button>
               {categories.map(cat => (
-                <button key={cat} onClick={() => setActiveCategory(cat)} className={`whitespace-nowrap px-4 py-2 rounded-full text-xs md:text-sm font-medium border transition-all ${activeCategory === cat ? 'bg-white text-black border-white' : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600'}`}>{cat}</button>
+                <button key={cat} onClick={() => setActiveCategory(cat)} className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold border transition-all duration-300 ${activeCategory === cat ? 'bg-white text-black border-white shadow-lg shadow-white/10 scale-105' : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10 hover:text-white'}`}>{cat}</button>
               ))}
             </div>
           </>
@@ -809,17 +863,17 @@ const App = () => {
           <div className="pt-24 pb-4 px-6 max-w-md mx-auto flex justify-start animate-in fade-in slide-in-from-bottom-4 duration-500">
              <button 
                onClick={() => setFocusedPackageId(null)}
-               className="flex items-center text-zinc-400 hover:text-white transition-colors group"
+               className="flex items-center text-zinc-400 hover:text-white transition-colors group px-4 py-2 rounded-xl hover:bg-white/5"
              >
-               <div className="p-1 rounded-full bg-zinc-800 group-hover:bg-zinc-700 mr-2 transition-colors">
+               <div className="p-1.5 rounded-full bg-zinc-800 group-hover:bg-zinc-700 mr-2 transition-colors border border-zinc-700">
                  <ArrowLeft className="w-4 h-4" /> 
                </div>
-               Kembali ke Daftar Paket
+               <span className="font-medium">Kembali ke Daftar Paket</span>
              </button>
           </div>
         )}
 
-        <div className={`mx-auto px-6 transition-all duration-500 ${focusedPackageId ? 'max-w-md mt-0' : 'max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+        <div className={`mx-auto px-6 transition-all duration-500 pb-20 ${focusedPackageId ? 'max-w-md mt-0' : 'max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'}`}>
           {packagesToDisplay.map(pkg => (
             <PackageCard 
               key={pkg.id} 
@@ -836,45 +890,49 @@ const App = () => {
 
   if (view === 'history') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative">
+         <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-zinc-900/40 via-black to-black -z-10"></div>
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
-        <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-zinc-800 pb-6 gap-4">
+        <div className="pt-28 pb-12 px-6 max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-white/10 pb-6 gap-4">
              <div>
                <h2 className="text-3xl font-bold text-white flex items-center gap-3"><History className="w-8 h-8 text-amber-500"/> Riwayat Invoice</h2>
-               <p className="text-zinc-400 mt-2">Daftar semua invoice yang pernah Anda buat.</p>
+               <p className="text-zinc-400 mt-2">Kelola semua invoice yang pernah Anda buat di sini.</p>
              </div>
-             <button onClick={() => navigateTo('home')} className="bg-white text-black px-4 py-2 rounded-lg font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2">
-               <Plus className="w-4 h-4"/> Buat Baru
+             <button onClick={() => navigateTo('home')} className="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2 shadow-lg shadow-white/5 hover:scale-105 active:scale-95 transform duration-200">
+               <Plus className="w-4 h-4"/> Buat Invoice Baru
              </button>
           </div>
 
           {invoiceHistory.length === 0 ? (
-            <div className="text-center py-20 bg-zinc-900/50 rounded-2xl border border-zinc-800 border-dashed">
-              <FileText className="w-16 h-16 text-zinc-700 mx-auto mb-4"/>
-              <p className="text-zinc-500 text-lg">Belum ada riwayat invoice tersimpan.</p>
-              <button onClick={() => navigateTo('home')} className="mt-4 text-amber-500 hover:text-amber-400 font-medium">Buat invoice sekarang &rarr;</button>
+            <div className="text-center py-24 bg-zinc-900/30 rounded-3xl border border-white/5 border-dashed backdrop-blur-sm">
+              <div className="bg-zinc-800/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                 <FileText className="w-10 h-10 text-zinc-600"/>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Belum Ada Riwayat</h3>
+              <p className="text-zinc-500 text-base mb-6">Anda belum membuat invoice apapun.</p>
+              <button onClick={() => navigateTo('home')} className="text-amber-500 hover:text-amber-400 font-bold tracking-wide hover:underline decoration-amber-500/30 underline-offset-4">Buat Invoice Sekarang &rarr;</button>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {invoiceHistory.map((invoice) => (
-                <div key={invoice.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-zinc-700 transition-colors">
+                <div key={invoice.id} className="bg-zinc-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-amber-500/30 transition-all hover:bg-zinc-900/80 group">
                   <div className="flex-grow">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded text-xs font-mono font-bold tracking-wider">{invoice.invoiceNo}</span>
-                      <span className="text-zinc-500 text-xs">{new Date(invoice.createdAt).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</span>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="bg-zinc-800/80 text-zinc-300 px-3 py-1 rounded-md text-xs font-mono font-bold tracking-wider border border-white/5">{invoice.invoiceNo}</span>
+                      <span className="text-zinc-500 text-xs font-medium flex items-center gap-1"><Calendar className="w-3 h-3"/> {new Date(invoice.createdAt).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</span>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-1">{invoice.clientData.name?.toUpperCase() || 'TANPA NAMA'}</h3>
-                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-400">
-                      <span>Paket: <span className="text-zinc-300">{invoice.selectedPackage.name}</span></span>
-                      <span>Total: <span className="text-amber-500 font-mono">{formatCurrency(invoice.totalAmount)}</span></span>
+                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-amber-500 transition-colors">{invoice.clientData.name?.toUpperCase() || 'TANPA NAMA'}</h3>
+                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-400 mt-2">
+                      <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-zinc-600"></div> {invoice.selectedPackage.name}</span>
+                      <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> <span className="text-white font-mono">{formatCurrency(invoice.totalAmount)}</span></span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2 w-full md:w-auto">
-                    <button onClick={() => handleEditFromHistory(invoice)} className="flex-1 md:flex-none bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"><Pencil className="w-4 h-4"/> Edit</button>
-                    <button onClick={() => loadFromHistory(invoice)} className="flex-1 md:flex-none bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"><Eye className="w-4 h-4"/> Lihat</button>
-                    <button onClick={() => deleteFromHistory(invoice.id)} className="flex-1 md:flex-none bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/50 px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"><Trash2 className="w-4 h-4"/> Hapus</button>
+                  <div className="flex gap-3 w-full md:w-auto">
+                    <button onClick={() => handleEditFromHistory(invoice)} className="flex-1 md:flex-none bg-zinc-800 hover:bg-zinc-700 text-white w-10 h-10 rounded-xl font-medium transition-colors flex items-center justify-center border border-white/5" title="Edit"><Pencil className="w-4 h-4"/></button>
+                    <button onClick={() => loadFromHistory(invoice)} className="flex-1 md:flex-none bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-900/20"><Eye className="w-4 h-4"/> Lihat</button>
+                    <button onClick={() => deleteFromHistory(invoice.id)} className="flex-1 md:flex-none bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 w-10 h-10 rounded-xl font-medium transition-colors flex items-center justify-center" title="Hapus"><Trash2 className="w-4 h-4"/></button>
                   </div>
                 </div>
               ))}
@@ -882,7 +940,7 @@ const App = () => {
           )}
         </div>
         {toastMessage && (
-           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-50 animate-in slide-in-from-bottom-5">
+           <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-50 animate-in slide-in-from-bottom-5">
              <CheckCircle className="w-5 h-5"/>
              <span className="font-medium">{toastMessage}</span>
            </div>
@@ -893,24 +951,49 @@ const App = () => {
 
   if (view === 'portfolio') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none"></div>
+
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
-        <div className="pt-24 pb-12 px-6 max-w-3xl mx-auto flex flex-col justify-center min-h-[80vh]">
-          <div className="bg-zinc-900/50 p-8 md:p-12 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full blur-2xl"></div>
-             <div className="flex items-center gap-3 mb-8">
-               <div className="p-3 bg-amber-500/20 rounded-lg"><ImageIcon className="w-8 h-8 text-amber-500" /></div>
-               <h2 className="text-2xl font-bold tracking-tight text-white">TEFHOTO</h2>
+        <div className="pt-24 pb-12 px-6 max-w-4xl mx-auto flex flex-col justify-center min-h-[85vh]">
+          <div className="bg-zinc-900/30 backdrop-blur-xl p-8 md:p-16 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden group">
+             {/* Removed Name & Logo as requested */}
+             
+             <div className="relative z-10">
+                <h1 className="text-3xl md:text-5xl font-black mb-8 leading-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                  Mengabadikan Esensi dalam Setiap Frame
+                </h1>
+                
+                <div className="space-y-6 text-zinc-300 text-lg md:text-xl leading-relaxed font-light">
+                  <p>
+                    Berangkat dari perjalanan kreatif <a href="https://instagram.com/tere.production" target="_blank" rel="noopener noreferrer" className="text-amber-500 font-medium hover:text-amber-400 hover:underline transition-all">@TERE.PRODUCTION</a>, TEFHOTO menghadirkan fotografi sebagai medium bercerita—mengolah momen, emosi, dan detail dengan pendekatan artistik yang personal.
+                  </p>
+                  <p>
+                    Setiap sesi dirancang sebagai kolaborasi intim, menghasilkan karya visual yang tidak hanya estetis, tetapi juga meninggalkan kesan mendalam.
+                  </p>
+                </div>
+
+                <div className="mt-12 flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => window.open('https://instagram.com/tefhoto', '_blank')} className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-black hover:bg-zinc-200 rounded-xl transition-all font-bold shadow-lg shadow-white/10 hover:scale-105 active:scale-95">
+                    <Instagram className="w-5 h-5" /> Kunjungi Instagram
+                  </button>
+                  <button onClick={() => navigateTo('home')} className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl transition-colors text-white font-medium backdrop-blur-md">
+                    Lihat Paket Harga
+                  </button>
+                </div>
              </div>
-             <h1 className="text-3xl md:text-5xl font-bold mb-8 leading-tight">Mengabadikan Esensi dalam Setiap Foto</h1>
-             <div className="space-y-6 text-zinc-400 text-lg leading-relaxed border-l-2 border-zinc-700 pl-6">
-               <p>Evolusi artistik dari <span className="text-amber-500 font-semibold">@tere.production</span>.</p>
-               <p>Fokus pada seni fotografi murni melalui kolaborasi intim, menciptakan pengalaman visual yang berbekas.</p>
-             </div>
-             <div className="mt-12 flex flex-col sm:flex-row gap-4">
-               <button onClick={() => window.open('https://instagram.com/tefhoto', '_blank')} className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors text-white font-medium"><Instagram className="w-5 h-5" /> Kunjungi Instagram</button>
-               <button onClick={() => navigateTo('home')} className="px-6 py-3 border border-zinc-700 hover:border-zinc-500 rounded-xl transition-colors text-zinc-300">Lihat Paket Harga</button>
-             </div>
+
+             {/* Decorative Elements */}
+             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-500/10 to-transparent rounded-bl-full opacity-50 group-hover:opacity-80 transition-opacity duration-1000"></div>
+          </div>
+          
+          {/* Aesthetic Footer */}
+          <div className="mt-8 text-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+             <p className="text-[10px] tracking-[0.3em] font-light text-zinc-500 uppercase">
+               Created by <span className="font-medium text-zinc-400">@gayaku_tedy</span>
+             </p>
           </div>
         </div>
       </div>
@@ -919,29 +1002,40 @@ const App = () => {
 
   if (view === 'contact') {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white font-sans">
+      <div className="min-h-screen bg-zinc-950 text-white font-sans relative">
+         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-zinc-900 to-transparent -z-10 opacity-50"></div>
         <Navbar currentView={view} onNavigate={navigateTo} isMobileMenuOpen={isMobileMenuOpen} onToggleMobileMenu={toggleMobileMenu} />
         <div className="pt-24 pb-12 px-6 max-w-3xl mx-auto flex flex-col justify-center min-h-[80vh]">
-          <div className="bg-zinc-900/50 p-8 md:p-12 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-32 h-32 bg-amber-500/10 rounded-br-full blur-2xl"></div>
-             <h2 className="text-3xl font-bold mb-2 text-center">Hubungi Kami</h2>
-             <p className="text-zinc-400 text-center mb-10">Konsultasikan momen spesial Anda bersama TEFHOTO</p>
-             <div className="space-y-6">
-               <div className="flex items-center gap-4 p-4 bg-black/40 rounded-xl border border-zinc-800 hover:border-amber-500/50 transition-colors">
-                 <div className="bg-amber-500/20 p-3 rounded-lg"><Phone className="w-6 h-6 text-amber-500" /></div>
-                 <div><p className="text-sm text-zinc-500 uppercase font-semibold">WhatsApp / Telepon</p><p className="text-lg font-bold text-white">082281211122 <span className="text-zinc-500 font-normal">| TEDY</span></p></div>
+          <div className="bg-zinc-900/40 backdrop-blur-xl p-8 md:p-12 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden">
+             
+             <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 mb-4 ring-1 ring-amber-500/20">
+                  <Phone className="w-6 h-6 text-amber-500"/>
+                </div>
+                <h2 className="text-4xl font-bold mb-3">Hubungi Kami</h2>
+                <p className="text-zinc-400 text-lg">Konsultasikan momen spesial Anda bersama tim TEFHOTO</p>
+             </div>
+
+             <div className="space-y-4">
+               {/* Contact Items - Modern Card Style */}
+               <div className="group flex items-center gap-5 p-5 bg-black/40 rounded-2xl border border-white/5 hover:border-amber-500/30 hover:bg-zinc-900/60 transition-all duration-300">
+                 <div className="bg-zinc-800 p-3 rounded-xl group-hover:bg-amber-500 group-hover:text-black transition-colors duration-300"><Phone className="w-6 h-6" /></div>
+                 <div><p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">WhatsApp / Telepon</p><p className="text-xl font-bold text-white tracking-tight">0822 8121 1122 <span className="text-zinc-600 text-sm font-normal ml-2">| TEDY</span></p></div>
                </div>
-                <div className="flex items-center gap-4 p-4 bg-black/40 rounded-xl border border-zinc-800 hover:border-amber-500/50 transition-colors cursor-pointer" onClick={() => window.open('https://instagram.com/tefhoto', '_blank')}>
-                 <div className="bg-amber-500/20 p-3 rounded-lg"><Instagram className="w-6 h-6 text-amber-500" /></div>
-                 <div><p className="text-sm text-zinc-500 uppercase font-semibold">Instagram</p><p className="text-lg font-bold text-white">@TERE.PRODUCTION</p><p className="text-lg font-bold text-white">@TEFHOTO</p></div>
+
+                <div className="group flex items-center gap-5 p-5 bg-black/40 rounded-2xl border border-white/5 hover:border-pink-500/30 hover:bg-zinc-900/60 transition-all duration-300 cursor-pointer" onClick={() => window.open('https://instagram.com/tefhoto', '_blank')}>
+                 <div className="bg-zinc-800 p-3 rounded-xl group-hover:bg-pink-600 group-hover:text-white transition-colors duration-300"><Instagram className="w-6 h-6" /></div>
+                 <div><p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">Instagram</p><p className="text-xl font-bold text-white tracking-tight">@TEFHOTO</p></div>
                </div>
-               <div className="flex items-center gap-4 p-4 bg-black/40 rounded-xl border border-zinc-800 hover:border-amber-500/50 transition-colors cursor-pointer" onClick={() => window.open('https://s.id/tefhoto', '_blank')}>
-                 <div className="bg-amber-500/20 p-3 rounded-lg"><Globe className="w-6 h-6 text-amber-500" /></div>
-                 <div><p className="text-sm text-zinc-500 uppercase font-semibold">Tautan Resmi</p><p className="text-lg font-bold text-white">https://s.id/tefhoto</p></div>
+
+               <div className="group flex items-center gap-5 p-5 bg-black/40 rounded-2xl border border-white/5 hover:border-blue-500/30 hover:bg-zinc-900/60 transition-all duration-300 cursor-pointer" onClick={() => window.open('https://s.id/tefhoto', '_blank')}>
+                 <div className="bg-zinc-800 p-3 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300"><Globe className="w-6 h-6" /></div>
+                 <div><p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">Tautan Resmi</p><p className="text-lg font-bold text-white">s.id/tefhoto</p></div>
                </div>
-               <div className="flex items-center gap-4 p-4 bg-black/40 rounded-xl border border-zinc-800 hover:border-amber-500/50 transition-colors">
-                 <div className="bg-amber-500/20 p-3 rounded-lg"><Mail className="w-6 h-6 text-amber-500" /></div>
-                 <div><p className="text-sm text-zinc-500 uppercase font-semibold">Email</p><p className="text-base text-white">tefhoto@gmail.com</p></div>
+
+               <div className="group flex items-center gap-5 p-5 bg-black/40 rounded-2xl border border-white/5 hover:border-emerald-500/30 hover:bg-zinc-900/60 transition-all duration-300">
+                 <div className="bg-zinc-800 p-3 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300"><Mail className="w-6 h-6" /></div>
+                 <div><p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">Email</p><p className="text-lg font-medium text-white">tefhoto@gmail.com</p></div>
                </div>
              </div>
           </div>
@@ -955,157 +1049,162 @@ const App = () => {
     const currentSelectValue = isCustomEvent ? 'Lainnya' : clientData.eventType;
 
     return (
-      <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-12 font-sans pt-24 md:pt-12">
-        <div className="max-w-3xl mx-auto">
-          <button onClick={() => setView('home')} className="flex items-center text-zinc-400 hover:text-white mb-6 transition-colors">
+      <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-12 font-sans pt-24 md:pt-16">
+        <div className="max-w-4xl mx-auto">
+          <button onClick={() => setView('home')} className="flex items-center text-zinc-400 hover:text-white mb-8 transition-colors px-4 py-2 hover:bg-white/5 rounded-lg w-fit">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
           </button>
 
-          <div className="bg-black border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl">
-            <div className="mb-8 border-b border-zinc-800 pb-6 flex justify-between items-start">
+          <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl">
+            <div className="mb-8 border-b border-white/10 pb-6 flex justify-between items-start">
               <div>
-                <h2 className="text-xl md:text-2xl font-bold mb-1">{editingInvoiceId ? 'Edit Invoice' : 'Detail Pemesanan'}</h2>
-                <p className="text-sm text-zinc-500">Isi data klien untuk membuat invoice</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2 tracking-tight">{editingInvoiceId ? 'Edit Invoice' : 'Detail Pemesanan'}</h2>
+                <p className="text-sm text-zinc-400">Lengkapi formulir di bawah ini untuk membuat invoice profesional.</p>
               </div>
               {editingInvoiceId && (
-                <span className="bg-amber-500/20 text-amber-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Mode Edit</span>
+                <span className="bg-amber-500/10 border border-amber-500/20 text-amber-500 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">Mode Edit</span>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-10">
+              {/* Selected Package Display */}
               <div className="col-span-1 md:col-span-2">
-                <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-lg flex flex-col md:flex-row justify-between md:items-center gap-2">
+                <div className="p-6 bg-gradient-to-r from-zinc-900 to-black border border-white/10 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4 group hover:border-amber-500/30 transition-colors">
                   <div>
-                    <p className="text-xs text-zinc-500 uppercase font-semibold">Paket Terpilih</p>
-                    <p className="text-lg font-bold text-amber-500">{selectedPackage?.name}</p>
+                    <p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">Paket Terpilih</p>
+                    <p className="text-2xl font-bold text-white">{selectedPackage?.name}</p>
+                    <p className="text-sm text-amber-500 font-medium mt-1">{selectedPackage?.category}</p>
                   </div>
-                  <p className="text-xl font-bold">{formatCurrency(selectedPackage?.price)}</p>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold tracking-tighter">{formatCurrency(selectedPackage?.price)}</p>
+                  </div>
                 </div>
               </div>
 
                <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400">Nama Klien</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none" />
-                  <input type="text" value={clientData.name} onChange={(e) => setClientData({...clientData, name: e.target.value.replace(/[^a-zA-Z\s.,'-]/g, '')})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors uppercase" placeholder="Nama Lengkap"/>
+                <label className="text-sm font-bold text-zinc-400 ml-1">Nama Klien</label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
+                  <input type="text" value={clientData.name} onChange={(e) => setClientData({...clientData, name: e.target.value.replace(/[^a-zA-Z\s.,'-]/g, '')})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all uppercase font-medium placeholder:text-zinc-700" placeholder="Nama Lengkap"/>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400">Nomor WhatsApp</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none" />
-                  <input type="text" inputMode="numeric" value={clientData.phone} onChange={(e) => setClientData({...clientData, phone: e.target.value.replace(/\D/g, '')})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors" placeholder="08..."/>
+                <label className="text-sm font-bold text-zinc-400 ml-1">Nomor WhatsApp</label>
+                <div className="relative group">
+                  <Phone className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
+                  <input type="text" inputMode="numeric" value={clientData.phone} onChange={(e) => setClientData({...clientData, phone: e.target.value.replace(/\D/g, '')})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all font-mono" placeholder="08..."/>
                 </div>
               </div>
 
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <label className="text-sm font-medium text-zinc-400">Jenis Kegiatan / Acara</label>
-                <div className="relative">
-                  <PartyPopper className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-10" />
+                <label className="text-sm font-bold text-zinc-400 ml-1">Jenis Kegiatan / Acara</label>
+                <div className="relative group">
+                  <PartyPopper className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none z-10" />
                   <div className="relative">
-                    <select value={currentSelectValue} onChange={(e) => setClientData({...clientData, eventType: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors appearance-none cursor-pointer">
+                    <select value={currentSelectValue} onChange={(e) => setClientData({...clientData, eventType: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all appearance-none cursor-pointer font-medium">
                       <option value="" disabled>Pilih Jenis Acara...</option>
                       {EVENT_OPTIONS.map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-zinc-500 pointer-events-none"/>
+                    <ChevronDown className="absolute right-4 top-3.5 w-4 h-4 text-zinc-500 pointer-events-none"/>
                   </div>
                 </div>
                 {(currentSelectValue === 'Lainnya') && (
-                  <div className="mt-2 animate-in slide-in-from-top-2">
-                    <input type="text" value={clientData.eventType === 'Lainnya' ? '' : clientData.eventType} onChange={(e) => setClientData({...clientData, eventType: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors uppercase" placeholder="Nama Acara Lainnya..." autoFocus/>
+                  <div className="mt-3 animate-in slide-in-from-top-2">
+                    <input type="text" value={clientData.eventType === 'Lainnya' ? '' : clientData.eventType} onChange={(e) => setClientData({...clientData, eventType: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all uppercase" placeholder="Ketik Nama Acara Lainnya..." autoFocus/>
                   </div>
                 )}
               </div>
 
               <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2 relative z-10">
-                    <label className="text-sm font-medium text-zinc-400">Dari Tanggal</label>
+                    <label className="text-sm font-bold text-zinc-400 ml-1">Dari Tanggal</label>
                     <div className="relative group flex items-center">
-                      <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
-                      <input type="date" value={clientData.eventDateStart} onChange={(e) => setClientData({...clientData, eventDateStart: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10" style={{ colorScheme: 'dark' }} />
+                      <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none z-0" />
+                      <input type="date" value={clientData.eventDateStart} onChange={(e) => setClientData({...clientData, eventDateStart: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all cursor-pointer relative z-10 pr-10" style={{ colorScheme: 'dark' }} />
                       {clientData.eventDateStart && (
-                        <button onClick={handleClearDateStart} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus"><X className="w-4 h-4" /></button>
+                        <button onClick={handleClearDateStart} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-1 transition-colors" title="Hapus"><X className="w-3 h-3" /></button>
                       )}
                     </div>
                   </div>
                   <div className="space-y-2 relative z-10">
-                    <label className="text-sm font-medium text-zinc-400">Sampai Tanggal</label>
+                    <label className="text-sm font-bold text-zinc-400 ml-1">Sampai Tanggal</label>
                     <div className="relative group flex items-center">
-                      <Calendar className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none z-0" />
-                      <input type="date" value={clientData.eventDateEnd} onChange={(e) => setClientData({...clientData, eventDateEnd: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors cursor-pointer relative z-10 pr-10" style={{ colorScheme: 'dark' }} />
+                      <Calendar className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none z-0" />
+                      <input type="date" value={clientData.eventDateEnd} onChange={(e) => setClientData({...clientData, eventDateEnd: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all cursor-pointer relative z-10 pr-10" style={{ colorScheme: 'dark' }} />
                       {clientData.eventDateEnd && (
-                        <button onClick={handleClearDateEnd} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-0.5" title="Hapus"><X className="w-4 h-4" /></button>
+                        <button onClick={handleClearDateEnd} className="absolute right-3 z-20 text-zinc-500 hover:text-white bg-zinc-800 rounded-full p-1 transition-colors" title="Hapus"><X className="w-3 h-3" /></button>
                       )}
                     </div>
                   </div>
               </div>
 
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <label className="text-sm font-medium text-zinc-400">Alamat Lengkap</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-zinc-600 pointer-events-none" />
-                  <textarea value={clientData.address} onChange={(e) => setClientData({...clientData, address: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors min-h-[50px] resize-y uppercase" placeholder="Alamat lengkap acara..." rows={1}/>
+                <label className="text-sm font-bold text-zinc-400 ml-1">Alamat Lengkap</label>
+                <div className="relative group">
+                  <MapPin className="absolute left-4 top-3.5 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors pointer-events-none" />
+                  <textarea value={clientData.address} onChange={(e) => setClientData({...clientData, address: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all min-h-[80px] resize-y uppercase font-medium" placeholder="Alamat lengkap acara..." rows={1}/>
                 </div>
               </div>
 
               <div className="col-span-1 md:col-span-2 space-y-2">
-                <label className="text-sm font-medium text-zinc-400">Catatan Tambahan (Opsional)</label>
-                <textarea value={clientData.notes} onChange={(e) => setClientData({...clientData, notes: e.target.value})} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors h-24 resize-none uppercase" placeholder="Request khusus..."/>
+                <label className="text-sm font-bold text-zinc-400 ml-1">Catatan Tambahan (Opsional)</label>
+                <textarea value={clientData.notes} onChange={(e) => setClientData({...clientData, notes: e.target.value})} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all h-24 resize-none uppercase font-medium" placeholder="Request khusus..."/>
               </div>
 
-              <div className="col-span-1 md:col-span-2 border-t border-zinc-800 pt-6 mt-2">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><CreditCard className="w-5 h-5 text-amber-500" /> Uang Muka (DP)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-1 md:col-span-2 border-t border-white/10 pt-8 mt-2">
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-zinc-300"><CreditCard className="w-5 h-5 text-amber-500" /> Informasi Pembayaran</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-400">Nominal DP</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-zinc-500 font-bold">Rp</span>
-                      <input type="text" value={dpAmount} onChange={handleDpChange} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 px-4 text-white focus:outline-none focus:border-amber-500 transition-colors" placeholder="0"/>
+                    <label className="text-sm font-bold text-zinc-400 ml-1">Nominal DP</label>
+                    <div className="relative group">
+                      <span className="absolute left-4 top-3 text-zinc-500 font-bold group-focus-within:text-amber-500 transition-colors">Rp</span>
+                      <input type="text" value={dpAmount} onChange={handleDpChange} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-12 px-4 text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all font-mono font-bold text-lg" placeholder="0"/>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-zinc-400">Bukti DP (Opsional)</label>
+                    <label className="text-sm font-bold text-zinc-400 ml-1">Bukti DP (Opsional)</label>
                     <div className="relative">
                       <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="dp-upload" />
-                      <label htmlFor="dp-upload" className="flex items-center justify-center w-full bg-zinc-900 border border-zinc-800 border-dashed hover:border-amber-500 rounded-lg py-2.5 px-4 text-zinc-400 cursor-pointer transition-colors">
-                        {dpProofImage ? (<span className="text-emerald-500 flex items-center gap-2"><Check className="w-4 h-4" /> Terupload</span>) : (<span className="flex items-center gap-2"><Upload className="w-4 h-4" /> Pilih Bukti</span>)}
+                      <label htmlFor="dp-upload" className="flex items-center justify-center w-full bg-zinc-900/50 border border-white/10 border-dashed hover:border-amber-500 hover:bg-zinc-900/80 rounded-xl py-3 px-4 text-zinc-400 cursor-pointer transition-all h-[52px]">
+                        {dpProofImage ? (<span className="text-emerald-500 flex items-center gap-2 font-bold"><Check className="w-4 h-4" /> Gambar Terpilih</span>) : (<span className="flex items-center gap-2 group"><Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" /> Pilih Bukti Gambar</span>)}
                       </label>
                     </div>
                   </div>
                 </div>
                 {dpProofImage && (
-                  <div className="mt-4 p-2 bg-zinc-900 border border-zinc-800 rounded-lg w-fit">
-                    <img src={dpProofImage} alt="Bukti DP" className="h-24 object-contain rounded" />
+                  <div className="mt-4 p-2 bg-black border border-white/10 rounded-xl w-fit relative group">
+                    <img src={dpProofImage} alt="Bukti DP" className="h-24 object-contain rounded-lg" />
+                    <button onClick={() => setDpProofImage(null)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3"/></button>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mb-8 border-t border-zinc-800 pt-6">
-               <label className="text-sm font-medium text-zinc-400 mb-2 block flex justify-between">
+            <div className="mb-10 border-t border-white/10 pt-8">
+               <label className="text-sm font-bold text-zinc-400 mb-3 block flex justify-between items-center">
                  <span>Biaya Tambahan Lainnya (Opsional)</span>
-                 {(newItem.desc || newItem.cost) && <span className="text-amber-500 text-xs animate-pulse flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Klik TAMBAH</span>}
+                 {(newItem.desc || newItem.cost) && <span className="text-amber-500 text-xs animate-pulse flex items-center gap-1 font-bold"><AlertTriangle className="w-3 h-3"/> Klik Tombol TAMBAH</span>}
                </label>
-               <div className="flex flex-col md:flex-row gap-2 mb-3">
-                 <input type="text" placeholder="ITEM (MISAL: TRANSPORT)" value={newItem.desc} onChange={(e) => setNewItem({...newItem, desc: e.target.value})} className="flex-grow bg-zinc-900 border border-zinc-800 rounded-lg py-2 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors uppercase"/>
-                 <div className="flex gap-2">
-                   <div className="relative w-full md:w-40">
-                      <span className="absolute left-3 top-2 text-zinc-500 text-sm">Rp</span>
-                      <input type="text" placeholder="0" value={newItem.cost} onChange={handleNewItemCostChange} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2 pl-9 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors"/>
+               <div className="flex flex-col md:flex-row gap-3 mb-4">
+                 <input type="text" placeholder="NAMA ITEM (MISAL: TRANSPORT LUAR KOTA)" value={newItem.desc} onChange={(e) => setNewItem({...newItem, desc: e.target.value})} className="flex-grow bg-zinc-900/50 border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all uppercase font-medium"/>
+                 <div className="flex gap-3">
+                   <div className="relative w-full md:w-48">
+                      <span className="absolute left-3 top-3 text-zinc-500 text-sm font-bold">Rp</span>
+                      <input type="text" placeholder="0" value={newItem.cost} onChange={handleNewItemCostChange} className="w-full bg-zinc-900/50 border border-white/10 rounded-xl py-3 pl-9 px-4 text-sm text-white focus:outline-none focus:border-amber-500 focus:bg-zinc-900 transition-all font-mono"/>
                    </div>
-                   <button onClick={handleAddItem} className="bg-amber-500 hover:bg-amber-400 px-4 py-2 rounded-lg text-black font-bold shrink-0 transition-colors flex items-center gap-2"><Plus className="w-4 h-4" /> TAMBAH</button>
+                   <button onClick={handleAddItem} className="bg-amber-500 hover:bg-amber-400 px-6 py-3 rounded-xl text-black font-bold shrink-0 transition-colors flex items-center gap-2 shadow-lg shadow-amber-900/20 active:scale-95"><Plus className="w-4 h-4" /> TAMBAH</button>
                  </div>
                </div>
                
                {additionalItems.length > 0 && (
-                 <div className="space-y-2 bg-zinc-900/30 p-3 rounded-lg">
+                 <div className="space-y-2 bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                    {additionalItems.map((item, idx) => (
-                     <div key={idx} className="flex justify-between items-center text-sm border-b border-zinc-800 last:border-0 pb-2 last:pb-0">
-                       <span className="uppercase">{item.desc}</span>
-                       <div className="flex items-center gap-3">
-                         <span className="font-mono">{formatCurrency(item.cost)}</span>
-                         <button onClick={() => handleRemoveItem(idx)} className="text-red-500 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                     <div key={idx} className="flex justify-between items-center text-sm border-b border-white/5 last:border-0 pb-3 last:pb-0">
+                       <span className="uppercase font-medium text-zinc-300">{item.desc}</span>
+                       <div className="flex items-center gap-4">
+                         <span className="font-mono font-bold text-white">{formatCurrency(item.cost)}</span>
+                         <button onClick={() => handleRemoveItem(idx)} className="text-red-500 hover:text-red-400 p-1 hover:bg-red-500/10 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
                        </div>
                      </div>
                    ))}
@@ -1113,8 +1212,8 @@ const App = () => {
                )}
             </div>
 
-            <button onClick={handleCreateInvoice} disabled={!clientData.name} className="w-full bg-white text-black hover:bg-amber-400 py-4 rounded-xl font-bold text-lg shadow-lg transition-all disabled:opacity-50 flex justify-center items-center gap-2">
-              <FileText className="w-5 h-5" /> {editingInvoiceId ? 'Perbarui Invoice' : 'Buat Invoice'}
+            <button onClick={handleCreateInvoice} disabled={!clientData.name} className="w-full bg-white text-black hover:bg-zinc-200 py-4 rounded-xl font-bold text-lg shadow-xl shadow-white/5 transition-all disabled:opacity-50 flex justify-center items-center gap-3 transform hover:-translate-y-1 active:translate-y-0">
+              <FileText className="w-5 h-5" /> {editingInvoiceId ? 'Simpan Perubahan' : 'Buat Invoice Sekarang'}
             </button>
           </div>
         </div>
@@ -1124,7 +1223,7 @@ const App = () => {
 
   if (view === 'preview') {
     return (
-      <div className="min-h-screen bg-zinc-900 p-0 md:p-8 overflow-visible print:bg-white print:p-0">
+      <div className="min-h-screen bg-zinc-950 p-0 md:p-8 overflow-x-hidden print:bg-white print:p-0 flex flex-col items-center">
         <style>{`
           @media print {
             body * { visibility: hidden; }
@@ -1134,83 +1233,96 @@ const App = () => {
           }
         `}</style>
 
-        <div className="sticky top-0 z-50 bg-zinc-900/90 backdrop-blur p-4 border-b border-zinc-800 max-w-[210mm] mx-auto mb-6 flex flex-col md:flex-row justify-between items-center print:hidden gap-3">
-          <button onClick={() => setView(isHistoryMode ? 'history' : 'form')} className="flex items-center text-zinc-400 hover:text-white transition-colors bg-black px-4 py-2 rounded-lg border border-zinc-800 text-sm">
+        <div className="sticky top-4 z-50 bg-zinc-900/80 backdrop-blur-md p-2 pl-4 pr-2 border border-white/10 rounded-full max-w-fit mx-auto mb-8 flex items-center gap-3 shadow-2xl animate-in slide-in-from-top-10 print:hidden">
+          <button onClick={() => setView(isHistoryMode ? 'history' : 'form')} className="flex items-center text-white hover:text-amber-400 transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full text-sm font-medium border border-white/5">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
           </button>
-          <div className="flex flex-wrap items-center gap-2 justify-end">
-            <button onClick={handlePrintHelp} className="p-2 rounded-full bg-zinc-800 text-zinc-400 hover:text-white"><HelpCircle className="w-5 h-5" /></button>
-            <button onClick={saveToHistory} className="flex items-center bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg font-bold shadow-lg text-sm border border-blue-500"><Save className="w-4 h-4 mr-2" /> {editingInvoiceId ? 'Update History' : 'Simpan History'}</button>
-            <button onClick={handleDownloadPDF} disabled={isPdfGenerating} className="flex items-center bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-lg font-bold shadow-lg text-sm border border-zinc-600 disabled:opacity-50">{isPdfGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <FileDown className="w-4 h-4 mr-2" />} Simpan PDF</button>
-            <button onClick={handleSmartShare} disabled={isPdfGenerating} className="flex items-center bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-bold shadow-lg text-sm border border-green-500 disabled:opacity-50"><Send className="w-4 h-4 mr-2" /> Kirim WA</button>
+          <div className="h-6 w-px bg-white/10 mx-1"></div>
+          <div className="flex items-center gap-2">
+            <button onClick={handlePrintHelp} className="p-2.5 rounded-full bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" title="Bantuan"><HelpCircle className="w-5 h-5" /></button>
+            <button onClick={saveToHistory} className="p-2.5 rounded-full bg-blue-600 text-white hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20" title="Simpan ke History"><Save className="w-5 h-5" /></button>
+            <button onClick={handleDownloadPDF} disabled={isPdfGenerating} className="p-2.5 rounded-full bg-zinc-100 text-black hover:bg-white transition-colors shadow-lg disabled:opacity-50" title="Download PDF">{isPdfGenerating ? <Loader2 className="w-5 h-5 animate-spin"/> : <FileDown className="w-5 h-5" />}</button>
+            <button onClick={handleSmartShare} disabled={isPdfGenerating} className="px-4 py-2.5 rounded-full bg-green-600 text-white hover:bg-green-500 transition-colors shadow-lg shadow-green-900/20 font-bold text-sm flex items-center gap-2 disabled:opacity-50"><Send className="w-4 h-4" /> Kirim WA</button>
           </div>
         </div>
 
         {showWaModal && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200 print:hidden">
-            <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl max-w-sm w-full shadow-2xl relative">
-               <button onClick={() => setShowWaModal(false)} className="absolute top-4 right-4"><X className="w-5 h-5 text-zinc-500 hover:text-white"/></button>
-               <div className="flex items-center gap-3 mb-6">
-                 <div className="bg-green-900/30 p-3 rounded-full"><Share2 className="w-6 h-6 text-green-500"/></div>
-                 <h3 className="text-xl font-bold text-white">Kirim Invoice</h3>
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200 print:hidden">
+            <div className="bg-zinc-900 border border-white/10 p-6 rounded-3xl max-w-sm w-full shadow-2xl relative">
+               <button onClick={() => setShowWaModal(false)} className="absolute top-4 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"><X className="w-4 h-4 text-white"/></button>
+               <div className="flex items-center gap-4 mb-6">
+                 <div className="bg-green-500/20 p-4 rounded-2xl"><Share2 className="w-8 h-8 text-green-500"/></div>
+                 <div>
+                    <h3 className="text-xl font-bold text-white">Siap Dikirim</h3>
+                    <p className="text-zinc-500 text-xs">Invoice telah dibuat.</p>
+                 </div>
                </div>
                <div className="space-y-4">
-                  <div className="bg-zinc-800/50 p-4 rounded-lg border border-zinc-700 text-sm">
-                    <p className="text-emerald-400 font-medium mb-1 flex items-center gap-2"><Check className="w-4 h-4"/> PDF Terunduh</p>
-                    <p className="text-xs text-zinc-400">File sudah tersimpan di perangkat Anda. Klik tombol di bawah untuk membuka chat WA, lalu lampirkan file tersebut.</p>
+                  <div className="bg-zinc-800/50 p-4 rounded-xl border border-white/5 text-sm">
+                    <p className="text-emerald-400 font-bold mb-2 flex items-center gap-2"><CheckCircle className="w-4 h-4"/> PDF Berhasil Diunduh</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">File PDF sudah tersimpan otomatis di perangkat Anda. Silakan lampirkan file tersebut setelah membuka WhatsApp.</p>
                   </div>
-                  <button onClick={openWaLinkManual} className="w-full py-2 bg-green-600 hover:bg-green-500 rounded text-sm text-white font-bold flex items-center justify-center gap-2">Buka WhatsApp</button>
+                  <button onClick={openWaLinkManual} className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-xl text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 transition-all hover:scale-105 active:scale-95">Buka WhatsApp Sekarang</button>
                </div>
             </div>
           </div>
         )}
 
         {toastMessage && (
-           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-[70] animate-in slide-in-from-top-5 print:hidden">
+           <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 z-[70] animate-in slide-in-from-top-5 print:hidden font-medium">
              <CheckCircle className="w-5 h-5"/>
-             <span className="font-bold text-sm">{toastMessage}</span>
+             <span>{toastMessage}</span>
            </div>
         )}
 
-        <div className="overflow-x-auto w-full flex justify-center pb-8">
-            <div id="invoice-print-area" className="bg-white text-black w-[210mm] min-w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:w-full print:m-0 print:static box-border relative font-sans flex flex-col shrink-0">
+        {/* CONTAINER UTAMA INVOICE - DENGAN SCALE TRANSFORMATION UNTUK MOBILE */}
+        <div 
+            ref={previewContainerRef}
+            className="origin-top transition-transform duration-300 ease-out"
+            style={{ 
+              transform: `scale(${previewScale})`,
+              marginBottom: `-${(1 - previewScale) * 1123}px` // Negative margin to reduce white space caused by scaling
+            }}
+        >
+            <div id="invoice-print-area" className="bg-white text-black w-[210mm] min-w-[210mm] h-[297mm] shadow-2xl print:shadow-none print:w-full print:m-0 print:static box-border relative font-sans flex flex-col shrink-0 overflow-hidden">
                 {/* Header - Fixed Height */}
-                <div className="bg-black text-white px-10 py-8 flex justify-between items-center print:bg-black print:text-white flex-none">
-                    <div>
-                        <h1 className="text-3xl font-black tracking-tighter mb-0.5">TEFHOTO</h1>
+                <div className="bg-black text-white px-12 py-10 flex justify-between items-center print:bg-black print:text-white flex-none relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-800 rounded-full blur-[80px] opacity-40 -mr-10 -mt-10"></div>
+                    <div className="relative z-10">
+                        <h1 className="text-4xl font-black tracking-tighter mb-1">TEFHOTO</h1>
                         <p className="text-[10px] tracking-[0.3em] uppercase text-zinc-400 leading-none">Fotografi & Videografi</p>
                     </div>
-                    <div className="text-right">
-                        <h2 className="text-2xl font-light tracking-[0.2em] opacity-80 leading-none mb-1.5">INVOICE</h2>
-                        <p className="text-[11px] text-zinc-400 font-mono tracking-wider">{clientData.invoiceNo}</p>
+                    <div className="text-right relative z-10">
+                        <h2 className="text-3xl font-light tracking-[0.2em] opacity-60 leading-none mb-2">INVOICE</h2>
+                        <p className="text-xs text-zinc-400 font-mono tracking-wider">{clientData.invoiceNo}</p>
                     </div>
                 </div>
 
-                {/* Content Area - Uses flex-grow to push footer down */}
-                <div className="px-10 py-8 flex-grow">
-                    <div className="grid grid-cols-2 gap-10 mb-10">
+                {/* Content Area */}
+                <div className="px-12 py-10 flex-grow relative">
+                    <div className="grid grid-cols-2 gap-12 mb-10">
                         <div>
-                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-100 pb-1.5">Informasi Klien</h3>
-                            <p className="font-bold text-lg uppercase leading-tight mb-1">{clientData.name || 'PELANGGAN'}</p>
-                            <p className="text-sm text-gray-600 mb-1 font-medium">{clientData.phone || '-'}</p>
+                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Informasi Klien</h3>
+                            <p className="font-bold text-xl uppercase leading-tight mb-1.5 text-gray-900">{clientData.name || 'PELANGGAN'}</p>
+                            <p className="text-sm text-gray-600 mb-2 font-medium">{clientData.phone || '-'}</p>
                             {clientData.address && <p className="text-xs text-gray-500 uppercase leading-relaxed max-w-[280px]">{clientData.address}</p>}
                         </div>
                         <div className="text-right">
-                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-100 pb-1.5">Detail Acara</h3>
-                            <div className="space-y-2.5">
+                            <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Detail Acara</h3>
+                            <div className="space-y-3">
                                 {clientData.eventType && (
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col items-end">
                                         <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Jenis Acara</span>
-                                        <span className="font-bold text-sm uppercase leading-none">{clientData.eventType}</span>
+                                        <span className="font-bold text-sm uppercase leading-none text-gray-800">{clientData.eventType}</span>
                                     </div>
                                 )}
-                                <div className="flex flex-col">
+                                <div className="flex flex-col items-end">
                                     <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Kategori</span>
-                                    <span className="font-bold text-sm leading-none">{selectedPackage?.category}</span>
+                                    <span className="font-bold text-sm leading-none text-gray-800">{selectedPackage?.category}</span>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col items-end">
                                     <span className="text-[9px] text-gray-400 uppercase tracking-tighter">Jadwal</span>
-                                    <span className="font-bold text-sm leading-none">
+                                    <span className="font-bold text-sm leading-none text-gray-800">
                                         {formatEventDateRange(clientData.eventDateStart, clientData.eventDateEnd)}
                                     </span>
                                 </div>
@@ -1221,47 +1333,47 @@ const App = () => {
                     <div className="mb-8">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b-[1.5px] border-black">
+                                <tr className="border-b-2 border-black">
                                     <th className="text-left py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 w-2/3">Deskripsi Layanan</th>
                                     <th className="text-right py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">Harga (IDR)</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-100">
                                 <tr>
-                                    <td className="py-5 align-top">
-                                        <div className="mb-2">
-                                            <p className="font-bold text-base leading-tight">{selectedPackage?.name}</p>
+                                    <td className="py-6 align-top">
+                                        <div className="mb-3">
+                                            <p className="font-bold text-lg leading-tight text-gray-900">{selectedPackage?.name}</p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                                             {selectedPackage?.features.map((feat, i) => (
-                                                <div key={i} className="text-[11px] text-gray-500 flex items-center leading-relaxed">
-                                                    <span className="w-1 h-1 bg-amber-400 rounded-full mr-2 shrink-0"></span> {feat}
+                                                <div key={i} className="text-[11px] text-gray-500 flex items-start leading-relaxed">
+                                                    <span className="w-1 h-1 bg-amber-500 rounded-full mr-2 mt-1.5 shrink-0"></span> {feat}
                                                 </div>
                                             ))}
                                         </div>
                                     </td>
-                                    <td className="py-5 text-right align-top font-mono font-bold text-gray-800 pt-5">
+                                    <td className="py-6 text-right align-top font-mono font-bold text-gray-800 text-base">
                                         {formatCurrency(selectedPackage?.price)}
                                     </td>
                                 </tr>
                                 {additionalItems.map((item, idx) => (
                                     <tr key={idx}>
-                                        <td className="py-3 align-middle">
+                                        <td className="py-4 align-middle">
                                             <div className="flex items-center">
-                                                <span className="text-[8px] font-bold bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded mr-3 uppercase tracking-tighter">Tambahan</span>
+                                                <span className="text-[9px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded mr-3 uppercase tracking-wider">Tambahan</span>
                                                 <span className="text-gray-700 font-semibold uppercase text-xs">{item.desc}</span>
                                             </div>
                                         </td>
-                                        <td className="py-3 text-right font-mono text-gray-600 font-medium">{formatCurrency(item.cost)}</td>
+                                        <td className="py-4 text-right font-mono text-gray-600 font-medium">{formatCurrency(item.cost)}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
                     
-                    <div className="flex justify-end mt-2">
-                        <div className="w-[280px]">
-                            <div className="space-y-2 pb-3 border-b border-gray-100">
+                    <div className="flex justify-end mt-4">
+                        <div className="w-[320px]">
+                            <div className="space-y-3 pb-4 border-b border-gray-100">
                                 <div className="flex justify-between text-gray-400 text-[11px] font-medium uppercase tracking-tight">
                                     <span>Paket Dasar</span>
                                     <span className="font-mono">{formatCurrency(selectedPackage?.price)}</span>
@@ -1274,55 +1386,55 @@ const App = () => {
                                 )}
                             </div>
 
-                            <div className="py-3 space-y-2">
+                            <div className="py-4 space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="font-bold text-xs text-gray-600 uppercase tracking-tighter">Total Tagihan</span>
-                                    <span className="font-bold font-mono text-base">{formatCurrency(calculateTotal())}</span>
+                                    <span className="font-bold font-mono text-lg text-gray-900">{formatCurrency(calculateTotal())}</span>
                                 </div>
                                 {dpAmount && parseNumberInput(dpAmount) > 0 && (
-                                    <div className="flex justify-between items-center text-emerald-600">
+                                    <div className="flex justify-between items-center text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
                                         <span className="text-[10px] font-bold uppercase tracking-tight flex items-center"><CheckCircle className="w-3 h-3 mr-1"/> DP Diterima</span>
                                         <span className="font-mono font-bold text-xs">-{formatCurrency(parseNumberInput(dpAmount))}</span>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="bg-black text-white px-4 py-3 rounded-md flex justify-between items-center print:bg-black print:text-white">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.1em]">Sisa Pembayaran</span>
-                                <span className="text-xl font-black">{formatCurrency(calculateBalance())}</span>
+                            <div className="bg-black text-white px-5 py-4 rounded-lg flex justify-between items-center print:bg-black print:text-white shadow-xl">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-400">Sisa Pembayaran</span>
+                                <span className="text-2xl font-black tracking-tight">{formatCurrency(calculateBalance())}</span>
                             </div>
                         </div>
                     </div>
 
                     {clientData.notes && (
-                        <div className="mt-8 p-4 bg-gray-50/50 border-l-[3px] border-amber-400 rounded-r-md">
-                            <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Catatan Khusus</h4>
-                            <p className="text-[11px] text-gray-600 italic leading-relaxed">"{clientData.notes.toUpperCase()}"</p>
+                        <div className="mt-10 p-5 bg-gray-50 border-l-[3px] border-amber-500 rounded-r-lg">
+                            <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan Khusus</h4>
+                            <p className="text-xs text-gray-700 italic leading-relaxed">"{clientData.notes.toUpperCase()}"</p>
                         </div>
                     )}
                     
                     {dpProofImage && (
-                        <div className="mt-6 break-inside-avoid">
-                            <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Pratinjau Bukti Pembayaran</h4>
-                            <img src={dpProofImage} alt="Bukti Transfer" className="h-28 object-contain border border-gray-100 rounded-sm p-1 bg-white" />
+                        <div className="mt-8 break-inside-avoid">
+                            <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Pratinjau Bukti Pembayaran</h4>
+                            <img src={dpProofImage} alt="Bukti Transfer" className="h-32 object-contain border border-gray-200 rounded p-1 bg-white" />
                         </div>
                     )}
                 </div>
 
-                {/* Footer - Fixed at bottom using flex-none and auto margin from parent grow */}
-                <div className="bg-gray-50/50 px-10 py-6 border-t border-gray-100 print:bg-gray-50 break-inside-avoid flex-none">
+                {/* Footer - Fixed at bottom */}
+                <div className="bg-gray-50 px-12 py-8 border-t border-gray-200 print:bg-gray-50 break-inside-avoid flex-none">
                     <div className="grid grid-cols-2 gap-8 items-end">
                         <div className="space-y-3">
                             <div>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Metode Pembayaran</p>
-                                <p className="font-black text-lg text-gray-800 leading-none">BCA 812-023-8192</p>
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Metode Pembayaran</p>
+                                <p className="font-black text-xl text-gray-800 leading-none tracking-tight">BCA 812-023-8192</p>
                                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter mt-1">A.N TEDY PURNAJAYA</p>
                             </div>
                         </div>
                         <div className="text-right flex flex-col items-end">
                             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Informasi Kontak</p>
-                            <p className="text-[11px] text-gray-700 font-medium">0822-8121-1122</p>
-                            <p className="text-[11px] text-gray-500">Instagram: @TEFHOTO</p>
+                            <p className="text-xs text-gray-700 font-bold">0822-8121-1122</p>
+                            <p className="text-xs text-gray-500 font-medium">Instagram: @TEFHOTO</p>
                             <p className="text-[9px] text-gray-400 mt-4 italic leading-tight">"Mengabadikan momen berharga Anda dengan sempurna."</p>
                         </div>
                     </div>
